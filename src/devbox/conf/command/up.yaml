@@ -1,0 +1,11 @@
+# @package _global_
+
+command: up
+region: ???  # Required: Lambda Cloud region (e.g., us-east-3)
+instance_type: ???  # Required: Instance type (e.g., gpu_1x_gh200)
+ssh_key_name: ???  # Required: SSH key name in Lambda Cloud account
+filesystem_name: null  # Optional: Filesystem to attach
+instance_name: null  # Optional: Name for the instance
+image_id: null  # Optional: Image ID (e.g., from list images command)
+quantity: 1  # Number of instances to launch
+wait_after_launch: false  # Wait for instance to be ready

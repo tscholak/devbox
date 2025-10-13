@@ -1,0 +1,4 @@
+# Lambda Cloud API configuration
+base_url: "https://cloud.lambda.ai/api/v1"
+api_key: ${oc.env:LAMBDA_API_KEY}
+timeout: 120  # seconds

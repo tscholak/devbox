@@ -1,0 +1,4 @@
+# @package _global_
+
+command: wait
+instance_id: ???  # Required: Instance ID to wait for

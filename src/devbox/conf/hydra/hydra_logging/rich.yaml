@@ -1,0 +1,33 @@
+# Keep Hydra/omegaconf logs off files (run dir not created yet) and on console only.
+version: 1
+disable_existing_loggers: false
+
+formatters:
+  rich_fmt:
+    format: "%(message)s"
+
+handlers:
+  console_rich:
+    class: rich.logging.RichHandler
+    level: WARNING
+    formatter: rich_fmt
+    rich_tracebacks: true
+    tracebacks_show_locals: false
+    markup: true
+    show_time: false
+    show_path: false
+    enable_link_path: false
+
+root:
+  level: WARNING
+  handlers: [console_rich]
+
+loggers:
+  hydra:
+    level: WARNING
+    handlers: [console_rich]
+    propagate: false
+  omegaconf:
+    level: WARNING
+    handlers: [console_rich]
+    propagate: false

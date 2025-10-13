@@ -1,0 +1,5 @@
+# @package _global_
+
+command: list
+resource: ???  # Must be specified: instances, instance-types, images, filesystems, ssh-keys, or firewall-rulesets
+available_only: true  # Show only resources in regions with available capacity (applies to instance-types, images, filesystems, firewall-rulesets)

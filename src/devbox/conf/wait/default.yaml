@@ -1,0 +1,3 @@
+# Wait operation configuration
+timeout: 900           # Maximum wait time in seconds (15 minutes)
+poll_interval: 5.0     # Polling interval in seconds

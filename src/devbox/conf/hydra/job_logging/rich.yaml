@@ -1,0 +1,60 @@
+version: 1
+disable_existing_loggers: false
+
+formatters:
+  file_fmt:
+    format: "%(asctime)s.%(msecs)03d %(levelname)s [%(name)s] %(message)s"
+    datefmt: "%Y-%m-%d %H:%M:%S"
+  rich_fmt:
+    format: "%(message)s"
+
+handlers:
+  console_rich:
+    class: rich.logging.RichHandler
+    level: WARNING           # only warnings and errors hit the terminal
+    formatter: rich_fmt
+    rich_tracebacks: true
+    tracebacks_show_locals: false
+    markup: true
+    show_time: false
+    show_path: false
+    enable_link_path: false  # avoids clickable paths that can clutter TUI
+    # RichHandler writes to stderr by default (good for TUI separation)
+
+  file_all:
+    class: logging.handlers.RotatingFileHandler
+    level: DEBUG
+    formatter: file_fmt
+    filename: app.log  # Since chdir=true, this goes to the run directory
+    maxBytes: 10485760       # 10 MB
+    backupCount: 5
+
+  file_err:
+    class: logging.handlers.RotatingFileHandler
+    level: ERROR
+    formatter: file_fmt
+    filename: error.log  # Since chdir=true, this goes to the run directory
+    maxBytes: 10485760
+    backupCount: 5
+
+root:
+  level: DEBUG
+  handlers: [console_rich, file_all, file_err]
+
+loggers:
+  # Networking / HTTP stacks commonly pulled in
+  urllib3:              { level: WARNING, handlers: [], propagate: true }
+  httpx:                { level: WARNING, handlers: [], propagate: true }
+  requests:             { level: WARNING, handlers: [], propagate: true }
+  aiohttp:              { level: WARNING, handlers: [], propagate: true }
+  websockets:           { level: WARNING, handlers: [], propagate: true }
+  grpc:                 { level: ERROR,   handlers: [], propagate: true }      # very chatty at INFO
+
+  # Concurrency / event loops
+  asyncio:              { level: WARNING, handlers: [], propagate: true }
+  zmq:                  { level: ERROR,   handlers: [], propagate: true }      # pyzmq warnings
+
+  # Misc occasionally noisy libs
+  PIL:                  { level: WARNING, handlers: [], propagate: true }
+  numexpr:              { level: WARNING, handlers: [], propagate: true }
+  tqdm:                 { level: ERROR,   handlers: [], propagate: true }      # progress bars (when logged)

@@ -1,0 +1,2 @@
+# SSH configuration
+username: "ubuntu"  # Default SSH username for Lambda Cloud instances

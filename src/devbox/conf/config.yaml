@@ -1,0 +1,20 @@
+defaults:
+  - command: ???  # Must specify: list, up, wait, down, or ssh
+  - api: default
+  - cloud_init: default
+  - wait: default
+  - ssh: default
+  - override hydra/job_logging: rich
+  - override hydra/hydra_logging: rich
+  - _self_
+
+hydra:
+  run:
+    dir: outputs/${hydra.job.override_dirname}
+  sweep:
+    dir: multirun/${hydra.job.override_dirname}
+    subdir: ${hydra.job.num}
+  job:
+    chdir: true  # Change to output directory so all files are saved there
+    env_set:
+      PYTHONHASHSEED: "0"

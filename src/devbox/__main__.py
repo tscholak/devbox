@@ -9,10 +9,9 @@ import hydra
 from omegaconf import DictConfig, OmegaConf
 from omegaconf.errors import InterpolationResolutionError
 
-from lambdalabs import ApiError
-
 from devbox.command_base import CommandError
 from devbox.commands import command_adapter
+from lambdalabs import ApiError
 
 
 log = logging.getLogger("devbox")

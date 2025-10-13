@@ -33,17 +33,6 @@ class ApiConfig(BaseModel):
     )
 
 
-class CloudInitConfig(BaseModel):
-    """Cloud-init configuration."""
-
-    template_path: str | None = Field(
-        description="Path to custom cloud-init template YAML file",
-    )
-    use_default: bool = Field(
-        description="Use built-in default cloud-init if no template provided",
-    )
-
-
 class WaitConfig(BaseModel):
     """Wait operation configuration."""
 

@@ -1,7 +1,6 @@
 defaults:
   - command: ???  # Must specify: list, up, wait, down, or ssh
   - api: default
-  - cloud_init: default
   - wait: default
   - ssh: default
   - override hydra/job_logging: rich

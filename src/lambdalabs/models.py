@@ -14,12 +14,12 @@ class ApiErrorUnauthorized(BaseModel):
     model_config = ConfigDict(
         frozen=True,
     )
-    code: Literal['global/invalid-api-key'] = Field(
-        ..., description='The unique identifier for the type of error.'
+    code: Literal["global/invalid-api-key"] = Field(
+        ..., description="The unique identifier for the type of error."
     )
-    message: str = Field(..., description='A description of the error.')
+    message: str = Field(..., description="A description of the error.")
     suggestion: str = Field(
-        ..., description='One or more suggestions of possible ways to fix the error.'
+        ..., description="One or more suggestions of possible ways to fix the error."
     )
 
 
@@ -27,19 +27,19 @@ class ApiErrorAccountInactive(BaseModel):
     model_config = ConfigDict(
         frozen=True,
     )
-    code: Literal['global/account-inactive'] = Field(
-        ..., description='The unique identifier for the type of error.'
+    code: Literal["global/account-inactive"] = Field(
+        ..., description="The unique identifier for the type of error."
     )
-    message: str = Field(..., description='A description of the error.')
+    message: str = Field(..., description="A description of the error.")
     suggestion: str = Field(
-        ..., description='One or more suggestions of possible ways to fix the error.'
+        ..., description="One or more suggestions of possible ways to fix the error."
     )
 
 
 class InstanceActionUnavailableCode(Enum):
-    vm_has_not_launched = 'vm-has-not-launched'
-    vm_is_too_old = 'vm-is-too-old'
-    vm_is_terminating = 'vm-is-terminating'
+    vm_has_not_launched = "vm-has-not-launched"
+    vm_is_too_old = "vm-is-too-old"
+    vm_is_terminating = "vm-is-terminating"
 
 
 class InstanceActionAvailabilityDetails(BaseModel):
@@ -48,25 +48,25 @@ class InstanceActionAvailabilityDetails(BaseModel):
     )
     available: bool = Field(
         ...,
-        description='If set, indicates that the relevant operation can be performed on the instance in its current state.',
+        description="If set, indicates that the relevant operation can be performed on the instance in its current state.",
     )
     reason_code: InstanceActionUnavailableCode | str | None = Field(
         default=None,
-        description='A code representing the instance state that is blocking the operation. Only provided if the operation is blocked.',
+        description="A code representing the instance state that is blocking the operation. Only provided if the operation is blocked.",
     )
     reason_description: str | None = Field(
         default=None,
-        description='A longer description of why this operation is currently blocked. Only provided if the operation is blocked.',
+        description="A longer description of why this operation is currently blocked. Only provided if the operation is blocked.",
     )
 
 
 class InstanceStatus(Enum):
-    booting = 'booting'
-    active = 'active'
-    unhealthy = 'unhealthy'
-    terminated = 'terminated'
-    terminating = 'terminating'
-    preempted = 'preempted'
+    booting = "booting"
+    active = "active"
+    unhealthy = "unhealthy"
+    terminated = "terminated"
+    terminating = "terminating"
+    preempted = "preempted"
 
 
 class FilesystemMountEntry(BaseModel):
@@ -75,34 +75,34 @@ class FilesystemMountEntry(BaseModel):
     )
     mount_point: str = Field(
         ...,
-        description='The absolute path indicating where on the instance the filesystem will be mounted.',
-        examples=['/data/custom-mount-point'],
+        description="The absolute path indicating where on the instance the filesystem will be mounted.",
+        examples=["/data/custom-mount-point"],
     )
     file_system_id: str = Field(
         ...,
-        description='The id of the filesystem to mount to the instance.',
-        examples=['398578a2336b49079e74043f0bd2cfe8'],
+        description="The id of the filesystem to mount to the instance.",
+        examples=["398578a2336b49079e74043f0bd2cfe8"],
     )
 
 
 class PublicRegionCode(Enum):
-    europe_central_1 = 'europe-central-1'
-    asia_south_1 = 'asia-south-1'
-    australia_east_1 = 'australia-east-1'
-    me_west_1 = 'me-west-1'
-    asia_northeast_1 = 'asia-northeast-1'
-    asia_northeast_2 = 'asia-northeast-2'
-    us_east_1 = 'us-east-1'
-    us_west_2 = 'us-west-2'
-    us_west_1 = 'us-west-1'
-    us_south_1 = 'us-south-1'
-    us_west_3 = 'us-west-3'
-    us_midwest_1 = 'us-midwest-1'
-    us_east_2 = 'us-east-2'
-    us_south_2 = 'us-south-2'
-    us_south_3 = 'us-south-3'
-    us_east_3 = 'us-east-3'
-    us_midwest_2 = 'us-midwest-2'
+    europe_central_1 = "europe-central-1"
+    asia_south_1 = "asia-south-1"
+    australia_east_1 = "australia-east-1"
+    me_west_1 = "me-west-1"
+    asia_northeast_1 = "asia-northeast-1"
+    asia_northeast_2 = "asia-northeast-2"
+    us_east_1 = "us-east-1"
+    us_west_2 = "us-west-2"
+    us_west_1 = "us-west-1"
+    us_south_1 = "us-south-1"
+    us_west_3 = "us-west-3"
+    us_midwest_1 = "us-midwest-1"
+    us_east_2 = "us-east-2"
+    us_south_2 = "us-south-2"
+    us_south_3 = "us-south-3"
+    us_east_3 = "us-east-3"
+    us_midwest_2 = "us-midwest-2"
 
 
 class Region(BaseModel):
@@ -110,12 +110,12 @@ class Region(BaseModel):
         frozen=True,
     )
     name: PublicRegionCode = Field(
-        ..., description='The region code.', examples=['us-west-1']
+        ..., description="The region code.", examples=["us-west-1"]
     )
     description: str = Field(
         ...,
-        description='The location represented by the region code.',
-        examples=['California, USA'],
+        description="The location represented by the region code.",
+        examples=["California, USA"],
     )
 
 
@@ -123,14 +123,14 @@ class InstanceTypeSpecs(BaseModel):
     model_config = ConfigDict(
         frozen=True,
     )
-    vcpus: int = Field(..., description='The number of virtual CPUs.', examples=[208])
+    vcpus: int = Field(..., description="The number of virtual CPUs.", examples=[208])
     memory_gib: int = Field(
-        ..., description='The amount of RAM in gibibytes (GiB).', examples=[1800]
+        ..., description="The amount of RAM in gibibytes (GiB).", examples=[1800]
     )
     storage_gib: int = Field(
-        ..., description='The amount of storage in gibibytes (GiB).', examples=[24780]
+        ..., description="The amount of storage in gibibytes (GiB).", examples=[24780]
     )
-    gpus: int = Field(..., description='The number of GPUs.', examples=[8])
+    gpus: int = Field(..., description="The number of GPUs.", examples=[8])
 
 
 class InstanceType(BaseModel):
@@ -139,26 +139,26 @@ class InstanceType(BaseModel):
     )
     name: str = Field(
         ...,
-        description='The name of the instance type.',
-        examples=['gpu_8x_h100_sxm5gdr'],
+        description="The name of the instance type.",
+        examples=["gpu_8x_h100_sxm5gdr"],
     )
     description: str = Field(
         ...,
-        description='A description of the instance type.',
-        examples=['8x H100 (80 GB SXM5)'],
+        description="A description of the instance type.",
+        examples=["8x H100 (80 GB SXM5)"],
     )
     gpu_description: str = Field(
         ...,
-        description='The type of GPU used by this instance type.',
-        examples=['H100 (80 GB SXM5)'],
+        description="The type of GPU used by this instance type.",
+        examples=["H100 (80 GB SXM5)"],
     )
     price_cents_per_hour: int = Field(
         ...,
-        description='The price of the instance type in US cents per hour.',
+        description="The price of the instance type in US cents per hour.",
         examples=[3592],
     )
     specs: InstanceTypeSpecs = Field(
-        ..., description='Detailed technical specifications for the instance type.'
+        ..., description="Detailed technical specifications for the instance type."
     )
 
 
@@ -168,23 +168,23 @@ class InstanceActionAvailability(BaseModel):
     )
     migrate: InstanceActionAvailabilityDetails = Field(
         ...,
-        description='Indicates whether the instance is currently able to be migrated.\nIf not, describes why the operation is blocked.',
+        description="Indicates whether the instance is currently able to be migrated.\nIf not, describes why the operation is blocked.",
     )
     rebuild: InstanceActionAvailabilityDetails = Field(
         ...,
-        description='Indicates whether the instance is currently able to be rebuilt.\nIf not, describes why the operation is blocked.',
+        description="Indicates whether the instance is currently able to be rebuilt.\nIf not, describes why the operation is blocked.",
     )
     restart: InstanceActionAvailabilityDetails = Field(
         ...,
-        description='Indicates whether the instance is currently able to be restarted.\nIf not, describes why the operation is blocked.',
+        description="Indicates whether the instance is currently able to be restarted.\nIf not, describes why the operation is blocked.",
     )
     cold_reboot: InstanceActionAvailabilityDetails = Field(
         ...,
-        description='Indicates whether the instance is currently eligible for a cold reboot.\nIf not, describes why the operation is blocked.',
+        description="Indicates whether the instance is currently eligible for a cold reboot.\nIf not, describes why the operation is blocked.",
     )
     terminate: InstanceActionAvailabilityDetails = Field(
         ...,
-        description='Indicates whether the instance is currently able to be terminated.\nIf not, describes why the operation is blocked.',
+        description="Indicates whether the instance is currently able to be terminated.\nIf not, describes why the operation is blocked.",
     )
 
 
@@ -192,8 +192,8 @@ class TagEntry(BaseModel):
     model_config = ConfigDict(
         frozen=True,
     )
-    key: str = Field(..., description='The key of the tag.', examples=['key1'])
-    value: str = Field(..., description='The value of the tag.', examples=['value1'])
+    key: str = Field(..., description="The key of the tag.", examples=["key1"])
+    value: str = Field(..., description="The value of the tag.", examples=["value1"])
 
 
 class FirewallRulesetEntry(BaseModel):
@@ -202,8 +202,8 @@ class FirewallRulesetEntry(BaseModel):
     )
     id: str = Field(
         ...,
-        description='The unique identifier of the firewall ruleset.',
-        examples=['c4d291f47f9d436fa39f58493ce3b50d'],
+        description="The unique identifier of the firewall ruleset.",
+        examples=["c4d291f47f9d436fa39f58493ce3b50d"],
     )
 
 
@@ -213,43 +213,43 @@ class Instance(BaseModel):
     )
     id: str = Field(
         ...,
-        description='The unique identifier of the instance.',
-        examples=['0920582c7ff041399e34823a0be62549'],
+        description="The unique identifier of the instance.",
+        examples=["0920582c7ff041399e34823a0be62549"],
     )
     name: str | None = Field(
         default=None,
-        description='If set, the user-provided name of the instance.',
-        examples=['My Instance'],
+        description="If set, the user-provided name of the instance.",
+        examples=["My Instance"],
         max_length=64,
         min_length=0,
     )
     ip: str | None = Field(
         default=None,
-        description='The public IPv4 address of the instance.',
-        examples=['198.51.100.2'],
+        description="The public IPv4 address of the instance.",
+        examples=["198.51.100.2"],
     )
     private_ip: str | None = Field(
         default=None,
-        description='The private IPv4 address of the instance.',
-        examples=['10.0.2.100'],
+        description="The private IPv4 address of the instance.",
+        examples=["10.0.2.100"],
     )
     status: InstanceStatus
     ssh_key_names: list[str] = Field(
         ...,
-        description='The names of the SSH keys that are allowed to access the instance.',
-        examples=[['My SSH key'], []],
+        description="The names of the SSH keys that are allowed to access the instance.",
+        examples=[["My SSH key"], []],
     )
     file_system_names: list[str] = Field(
         ...,
-        description='The names of the filesystems mounted to the instance. If no filesystems are mounted, this array is empty.',
-        examples=[['my-filesystem'], []],
+        description="The names of the filesystems mounted to the instance. If no filesystems are mounted, this array is empty.",
+        examples=[["my-filesystem"], []],
     )
     file_system_mounts: list[FilesystemMountEntry] | None = Field(
         default=None,
-        description='The filesystems, along with the mount paths, mounted to\nthe instances. If no filesystems are mounted, this parameter\nwill be missing from the response.',
+        description="The filesystems, along with the mount paths, mounted to\nthe instances. If no filesystems are mounted, this parameter\nwill be missing from the response.",
     )
     region: Region = Field(
-        ..., description='The region in which the instance is deployed.'
+        ..., description="The region in which the instance is deployed."
     )
     instance_type: InstanceType = Field(
         ..., description="Detailed information about the instance's instance type."
@@ -257,29 +257,29 @@ class Instance(BaseModel):
     hostname: str | None = Field(
         default=None,
         description="The hostname assigned to this instance, which resolves to the instance's IP.",
-        examples=['headnode1'],
+        examples=["headnode1"],
     )
     jupyter_token: str | None = Field(
         default=None,
-        description='The secret token used to log into the JupyterLab server hosted on the instance.',
-        examples=['03b7d30d9d3e4d8fa41657bc0d478c1b'],
+        description="The secret token used to log into the JupyterLab server hosted on the instance.",
+        examples=["03b7d30d9d3e4d8fa41657bc0d478c1b"],
     )
     jupyter_url: str | None = Field(
         default=None,
-        description='The URL that opens the JupyterLab environment on the instance.',
+        description="The URL that opens the JupyterLab environment on the instance.",
         examples=[
-            'https://jupyter-249e1ccff1894822af39ac822637f881.lambdaspaces.com/?token=03b7d30d9d3e4d8fa41657bc0d478c1b'
+            "https://jupyter-249e1ccff1894822af39ac822637f881.lambdaspaces.com/?token=03b7d30d9d3e4d8fa41657bc0d478c1b"
         ],
     )
     actions: InstanceActionAvailability = Field(
         ...,
-        description='A set of status objects representing the current availability of common instance operations.',
+        description="A set of status objects representing the current availability of common instance operations.",
     )
     tags: list[TagEntry] | None = Field(
         default=None, description="Key/value pairs representing the instance's tags."
     )
     firewall_rulesets: list[FirewallRulesetEntry] | None = Field(
-        default=None, description='The firewall rulesets associated with this instance.'
+        default=None, description="The firewall rulesets associated with this instance."
     )
 
 
@@ -287,13 +287,13 @@ class ApiErrorInstanceNotFound(BaseModel):
     model_config = ConfigDict(
         frozen=True,
     )
-    code: Literal['global/object-does-not-exist'] = Field(
-        ..., description='The unique identifier for the type of error.'
+    code: Literal["global/object-does-not-exist"] = Field(
+        ..., description="The unique identifier for the type of error."
     )
-    message: str = Field(..., description='A description of the error.')
+    message: str = Field(..., description="A description of the error.")
     suggestion: str | None = Field(
         default=None,
-        description='One or more suggestions of possible ways to fix the error.',
+        description="One or more suggestions of possible ways to fix the error.",
     )
 
 
@@ -301,13 +301,13 @@ class ApiErrorInvalidParameters(BaseModel):
     model_config = ConfigDict(
         frozen=True,
     )
-    code: Literal['global/invalid-parameters'] = Field(
-        ..., description='The unique identifier for the type of error.'
+    code: Literal["global/invalid-parameters"] = Field(
+        ..., description="The unique identifier for the type of error."
     )
-    message: str = Field(..., description='A description of the error.')
+    message: str = Field(..., description="A description of the error.")
     suggestion: str | None = Field(
         default=None,
-        description='One or more suggestions of possible ways to fix the error.',
+        description="One or more suggestions of possible ways to fix the error.",
     )
 
 
@@ -317,8 +317,8 @@ class InstanceModificationRequest(BaseModel):
     )
     name: str | None = Field(
         default=None,
-        description='The new, user-provided name for the instance.',
-        examples=['My Instance'],
+        description="The new, user-provided name for the instance.",
+        examples=["My Instance"],
         max_length=64,
         min_length=0,
     )
@@ -330,11 +330,11 @@ class InstanceTypesItem(BaseModel):
     )
     instance_type: InstanceType = Field(
         ...,
-        description='The description, technical specifications, and metadata for this instance type.',
+        description="The description, technical specifications, and metadata for this instance type.",
     )
     regions_with_capacity_available: list[Region] = Field(
         ...,
-        description='A list of the regions in which this instance type is available.',
+        description="A list of the regions in which this instance type is available.",
     )
 
 
@@ -349,12 +349,12 @@ class ApiErrorInvalidBillingAddress(BaseModel):
     model_config = ConfigDict(
         frozen=True,
     )
-    code: Literal['global/invalid-address'] = Field(
-        ..., description='The unique identifier for the type of error.'
+    code: Literal["global/invalid-address"] = Field(
+        ..., description="The unique identifier for the type of error."
     )
-    message: str = Field(..., description='A description of the error.')
+    message: str = Field(..., description="A description of the error.")
     suggestion: str = Field(
-        ..., description='One or more suggestions of possible ways to fix the error.'
+        ..., description="One or more suggestions of possible ways to fix the error."
     )
 
 
@@ -364,8 +364,8 @@ class InstanceLaunchResponse(BaseModel):
     )
     instance_ids: list[str] = Field(
         ...,
-        description='The unique identifiers (IDs) of the launched instances.',
-        examples=[['0920582c7ff041399e34823a0be62549']],
+        description="The unique identifiers (IDs) of the launched instances.",
+        examples=[["0920582c7ff041399e34823a0be62549"]],
     )
 
 
@@ -373,13 +373,13 @@ class ApiErrorFileSystemInWrongRegion(BaseModel):
     model_config = ConfigDict(
         frozen=True,
     )
-    code: Literal['instance-operations/launch/file-system-in-wrong-region'] = Field(
-        ..., description='The unique identifier for the type of error.'
+    code: Literal["instance-operations/launch/file-system-in-wrong-region"] = Field(
+        ..., description="The unique identifier for the type of error."
     )
-    message: str = Field(..., description='A description of the error.')
+    message: str = Field(..., description="A description of the error.")
     suggestion: str | None = Field(
         default=None,
-        description='One or more suggestions of possible ways to fix the error.',
+        description="One or more suggestions of possible ways to fix the error.",
     )
 
 
@@ -387,13 +387,13 @@ class ApiErrorInsufficientCapacity(BaseModel):
     model_config = ConfigDict(
         frozen=True,
     )
-    code: Literal['instance-operations/launch/insufficient-capacity'] = Field(
-        ..., description='The unique identifier for the type of error.'
+    code: Literal["instance-operations/launch/insufficient-capacity"] = Field(
+        ..., description="The unique identifier for the type of error."
     )
-    message: str = Field(..., description='A description of the error.')
+    message: str = Field(..., description="A description of the error.")
     suggestion: str | None = Field(
         default=None,
-        description='One or more suggestions of possible ways to fix the error.',
+        description="One or more suggestions of possible ways to fix the error.",
     )
 
 
@@ -401,12 +401,12 @@ class ApiErrorLaunchResourceNotFound(BaseModel):
     model_config = ConfigDict(
         frozen=True,
     )
-    code: Literal['global/object-does-not-exist'] = Field(
-        ..., description='The unique identifier for the type of error.'
+    code: Literal["global/object-does-not-exist"] = Field(
+        ..., description="The unique identifier for the type of error."
     )
-    message: str = Field(..., description='The resource the API was unable to find.')
+    message: str = Field(..., description="The resource the API was unable to find.")
     suggestion: str = Field(
-        ..., description='One or more suggestions of possible ways to fix the error.'
+        ..., description="One or more suggestions of possible ways to fix the error."
     )
 
 
@@ -414,12 +414,12 @@ class ApiErrorQuotaExceeded(BaseModel):
     model_config = ConfigDict(
         frozen=True,
     )
-    code: Literal['global/quota-exceeded'] = Field(
-        ..., description='The unique identifier for the type of error.'
+    code: Literal["global/quota-exceeded"] = Field(
+        ..., description="The unique identifier for the type of error."
     )
-    message: str = Field(..., description='A description of the error.')
+    message: str = Field(..., description="A description of the error.")
     suggestion: str = Field(
-        ..., description='One or more suggestions of possible ways to fix the error.'
+        ..., description="One or more suggestions of possible ways to fix the error."
     )
 
 
@@ -429,15 +429,15 @@ class RequestedFilesystemMountEntry(BaseModel):
     )
     mount_point: str = Field(
         ...,
-        description='The absolute path indicating where on the instance the filesystem will be mounted.',
-        examples=['/data/custom-mount-point'],
+        description="The absolute path indicating where on the instance the filesystem will be mounted.",
+        examples=["/data/custom-mount-point"],
         max_length=256,
-        pattern='^(/home|/lambda/nfs|/data)[//a-zA-Z0-9-]*$',
+        pattern="^(/home|/lambda/nfs|/data)[//a-zA-Z0-9-]*$",
     )
     file_system_id: str = Field(
         ...,
-        description='The id of the filesystem to mount to the instance.',
-        examples=['398578a2336b49079e74043f0bd2cfe8'],
+        description="The id of the filesystem to mount to the instance.",
+        examples=["398578a2336b49079e74043f0bd2cfe8"],
     )
 
 
@@ -452,7 +452,7 @@ class ImageSpecificationFamily(BaseModel):
     model_config = ConfigDict(
         frozen=True,
     )
-    family: str = Field(..., description='The family name of the image.')
+    family: str = Field(..., description="The family name of the image.")
 
 
 class RequestedTagEntry(BaseModel):
@@ -461,13 +461,13 @@ class RequestedTagEntry(BaseModel):
     )
     key: str = Field(
         ...,
-        description='The key of the tag.',
-        examples=['key1'],
+        description="The key of the tag.",
+        examples=["key1"],
         max_length=55,
-        pattern='^[a-z][a-z0-9-:]+$',
+        pattern="^[a-z][a-z0-9-:]+$",
     )
     value: str = Field(
-        ..., description='The value of the tag.', examples=['value1'], max_length=128
+        ..., description="The value of the tag.", examples=["value1"], max_length=128
     )
 
 
@@ -476,56 +476,56 @@ class InstanceLaunchRequest(BaseModel):
         frozen=True,
     )
     region_name: PublicRegionCode = Field(
-        ..., description='The region into which you want to launch the instance.'
+        ..., description="The region into which you want to launch the instance."
     )
     instance_type_name: str = Field(
         ...,
-        description='The type of instance you want to launch. To retrieve a list of available instance types, see\n[List available instance types](#listInstanceTypes).',
-        examples=['gpu_8x_a100'],
+        description="The type of instance you want to launch. To retrieve a list of available instance types, see\n[List available instance types](#listInstanceTypes).",
+        examples=["gpu_8x_a100"],
     )
     ssh_key_names: list[str] = Field(
         ...,
-        description='The names of the SSH keys you want to use to provide access to the instance.\nCurrently, exactly one SSH key must be specified.',
-        examples=[['my-public-key']],
+        description="The names of the SSH keys you want to use to provide access to the instance.\nCurrently, exactly one SSH key must be specified.",
+        examples=[["my-public-key"]],
     )
     file_system_names: list[str] | None = Field(
         default=None,
-        description='The names of the filesystems you want to mount to the instance. When specified\nalongside `file_system_mounts`, any filesystems referred to in both lists will use the\nmount path specified in `file_system_mounts`, rather than the default.',
-        examples=[['my-filesystem'], []],
+        description="The names of the filesystems you want to mount to the instance. When specified\nalongside `file_system_mounts`, any filesystems referred to in both lists will use the\nmount path specified in `file_system_mounts`, rather than the default.",
+        examples=[["my-filesystem"], []],
     )
     file_system_mounts: list[RequestedFilesystemMountEntry] | None = Field(
         default=None,
-        description='The filesystem mounts to mount to the instance. When specified alongside\n`file_system_names`, any filesystems referred to in both lists will use the\nmount path specified in `file_system_mounts`, rather than the default.',
+        description="The filesystem mounts to mount to the instance. When specified alongside\n`file_system_names`, any filesystems referred to in both lists will use the\nmount path specified in `file_system_mounts`, rather than the default.",
     )
     hostname: str | None = Field(
         default=None,
-        description='The hostname to assign to the instance. If not specified, a default, IP-address-based\nhostname is assigned. This hostname is driven into /etc/hostname on the instance.',
-        examples=['headnode1'],
+        description="The hostname to assign to the instance. If not specified, a default, IP-address-based\nhostname is assigned. This hostname is driven into /etc/hostname on the instance.",
+        examples=["headnode1"],
         max_length=63,
         min_length=1,
-        pattern='^[a-z0-9][0-9a-z-]{0,62}$',
+        pattern="^[a-z0-9][0-9a-z-]{0,62}$",
     )
     name: str | None = Field(
         default=None,
-        description='The name you want to assign to your instance. Must be 64 characters or fewer.',
-        examples=['My Instance'],
+        description="The name you want to assign to your instance. Must be 64 characters or fewer.",
+        examples=["My Instance"],
         max_length=64,
         min_length=0,
     )
     image: ImageSpecificationID | ImageSpecificationFamily | None = Field(
         default=None,
-        description='The machine image you want to use. Defaults to the latest Lambda Stack image.',
+        description="The machine image you want to use. Defaults to the latest Lambda Stack image.",
     )
     user_data: SecretStr | None = Field(
         default=None,
-        description='An instance configuration string specified in a valid\n[cloud-init user-data](https://cloudinit.readthedocs.io/en/latest/explanation/format.html)\nformat. You can use this field to configure your instance on launch. The\nuser data string must be plain text and cannot exceed 1MB in size.',
+        description="An instance configuration string specified in a valid\n[cloud-init user-data](https://cloudinit.readthedocs.io/en/latest/explanation/format.html)\nformat. You can use this field to configure your instance on launch. The\nuser data string must be plain text and cannot exceed 1MB in size.",
     )
     tags: list[RequestedTagEntry] | None = Field(
         default=None, description="Key/value pairs representing the instance's tags."
     )
     firewall_rulesets: list[FirewallRulesetEntry] | None = Field(
         default=None,
-        description='The firewall rulesets to associate with the instance.\nThe firewall rulesets must exist in the same region as the instance.',
+        description="The firewall rulesets to associate with the instance.\nThe firewall rulesets must exist in the same region as the instance.",
     )
 
 
@@ -534,7 +534,7 @@ class InstanceRestartResponse(BaseModel):
         frozen=True,
     )
     restarted_instances: list[Instance] = Field(
-        ..., description='The list of instances that were successfully restarted.'
+        ..., description="The list of instances that were successfully restarted."
     )
 
 
@@ -544,8 +544,8 @@ class InstanceRestartRequest(BaseModel):
     )
     instance_ids: list[str] = Field(
         ...,
-        description='The unique identifiers (IDs) of the instances to restart.',
-        examples=[['0920582c7ff041399e34823a0be62549']],
+        description="The unique identifiers (IDs) of the instances to restart.",
+        examples=[["0920582c7ff041399e34823a0be62549"]],
     )
 
 
@@ -554,7 +554,7 @@ class InstanceTerminateResponse(BaseModel):
         frozen=True,
     )
     terminated_instances: list[Instance] = Field(
-        ..., description='The list of instances that were successfully terminated.'
+        ..., description="The list of instances that were successfully terminated."
     )
 
 
@@ -564,8 +564,8 @@ class InstanceTerminateRequest(BaseModel):
     )
     instance_ids: list[str] = Field(
         ...,
-        description='The unique identifiers (IDs) of the instances to terminate.',
-        examples=[['0920582c7ff041399e34823a0be62549']],
+        description="The unique identifiers (IDs) of the instances to terminate.",
+        examples=[["0920582c7ff041399e34823a0be62549"]],
     )
 
 
@@ -575,21 +575,21 @@ class SSHKey(BaseModel):
     )
     id: str = Field(
         ...,
-        description='The unique identifier (ID) of the SSH key.',
-        examples=['ddf9a910ceb744a0bb95242cbba6cb50'],
+        description="The unique identifier (ID) of the SSH key.",
+        examples=["ddf9a910ceb744a0bb95242cbba6cb50"],
     )
     name: str = Field(
         ...,
-        description='The name of the SSH key.',
-        examples=['my-public-key'],
+        description="The name of the SSH key.",
+        examples=["my-public-key"],
         max_length=64,
         min_length=1,
     )
     public_key: str = Field(
         ...,
-        description='The public key for the SSH key.',
+        description="The public key for the SSH key.",
         examples=[
-            'ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICN+lJwsONkwrdsSnQsu1ydUkIuIg5oOC+Eslvmtt60T noname'
+            "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICN+lJwsONkwrdsSnQsu1ydUkIuIg5oOC+Eslvmtt60T noname"
         ],
         max_length=4096,
         min_length=1,
@@ -602,30 +602,30 @@ class GeneratedSSHKey(BaseModel):
     )
     id: str = Field(
         ...,
-        description='The unique identifier (ID) of the SSH key.',
-        examples=['ddf9a910ceb744a0bb95242cbba6cb50'],
+        description="The unique identifier (ID) of the SSH key.",
+        examples=["ddf9a910ceb744a0bb95242cbba6cb50"],
     )
     name: str = Field(
         ...,
-        description='The name of the SSH key.',
-        examples=['my-public-key'],
+        description="The name of the SSH key.",
+        examples=["my-public-key"],
         max_length=64,
         min_length=1,
     )
     public_key: str = Field(
         ...,
-        description='The public key for the SSH key.',
+        description="The public key for the SSH key.",
         examples=[
-            'ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICN+lJwsONkwrdsSnQsu1ydUkIuIg5oOC+Eslvmtt60T noname'
+            "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICN+lJwsONkwrdsSnQsu1ydUkIuIg5oOC+Eslvmtt60T noname"
         ],
         max_length=4096,
         min_length=1,
     )
     private_key: str = Field(
         ...,
-        description='The private key generated in the SSH key pair. Make sure to store a\ncopy of this key locally, as Lambda does not store the key server-side.',
+        description="The private key generated in the SSH key pair. Make sure to store a\ncopy of this key locally, as Lambda does not store the key server-side.",
         examples=[
-            '-----BEGIN RSA PRIVATE KEY-----\\nMIIEoAIBAAKCAQEAmTi0yMd35HkIKXgEAVLb14fE094YL5qgGqS5ayq9SHi72mlf\\np0hvMr9dqI1wVELRC6cqNYJio9B031gG3dGI3IMpxLzRptYPOmwXIN+jagV40Pzc\\nz6dExtn1OhFwJKlppoPj/2j0QXHSP7dHmRxmlkaQVZs7qy+twkcckMmHU7g9M3dP\\n89P0sQk6xWYX8lF+0bRv/VpNwBcFQfmy36xHpMgIq8hLlBaOZd2fti5jXrQaGOto\\nZo3gI7QLAY9YyFmfRLutBM+F+9ArvhYdYolroJOv8EvEIpN8cljn21WLH6plL22E\\ncLToH66+t0wcCYDHpqKZ/sLLzcjH6kxIgp/mJQIDAQABAoH/HJqr17uwEhg1vPhT\\nGoG6+Snzp45xVGCCT25odw3ERZmX8R6YZSgqtB8rDd2wFnJ53wrHvgePS6Pw63wg\\nRNi7DsX9nToEocY30kowbrezO9Qom7X4DSJwllinRY1pJy+10AWyjDzCZV5UpBHq\\n/M53W0M4rtPjGpgBSevuRVLym8PRMJAF4/YMKSOGN6grNmmBjsqCRw23Cps6ZiK9\\noE7V2UTcMK6WzPiPCbW1KxLoCx0ihdGH5q8Vj/lsRflKLpKVA9QUNCBXlnFzgEYh\\nYK7RGN0zmmITyQfvjdthvCFyMQJ4V2ccxVxa52zqN04Ywvy/HC1mhS9iy6wSSCtP\\nm2xTAoGBANciuYrof8Z3BWOXLBCsDvBYWzLs+wyIoi0SujVGSl9k9ThrahYTtbxq\\nnEKofeYP5gOzqeNGiKveIW8ZFqtiNNe36zSts6h3nndMKBLB92tGWjSG4yRDC7Tp\\nT0okUAkSDnDNwWONx0vhqdoNiLEIVvCp2HCCTCSxbHHOJcAAYtufAoGBALZTUaZz\\nUxF/WCICbxb9dABqk4hKLUe/3Hwhzb5e1PKTGnWesbnDIkIHqNx86MEcYaQQSGzW\\nZ/zBTUsbOC5qZt0UOuMeXiAb7cmwOEx4hiBYkEt/2xCKqQWNVnSY+4LLpGNZanFE\\nTVKZ5QB2oYNiJ3Lby16YStvRBzGc1TTQo+e7AoGAP4eAlRWNTfUtwTgOCipVCwJ8\\ng/BZPl1Gztqd5EeKhNsSUwPdQwG1BBvTYxfQfdSqDuPKQlQ83cvtwZn+CMQqaJ1m\\nNpso15HjWMVDfC6NOr9+uc4vWzD1TwoqoPFSNSuA2izYc+aVOMI93ydp+yVETzNI\\nuAiyJY/DP2Qp36X9i28CgYAlWUIDl+IvVmfGZ7s7+WV25F4ecBuAdCQFZaNQ2PpE\\nSrAD4iNEC14MKqeDqy6+yEKUKiW77dvVYf+kYAoNMAysQwWhGsprR21ZgHi36YSI\\nQbwlSyaj59Oh6IcKUYBMFc0x8NImK7ivMAlCJAsH7+Zm1/F8CjRjfRk9J4RhUlAR\\nGwKBgC4g7eZ/3fBBlL+eMxhCwK2QDS5E0emVI42676hhXAixPJ3PFePXWUmCFsXd\\nB1gDj7SR7h5nefoxjesCTwcf/rV+MPukjot6C9tEHhAJt7bDUelW9XOULwuEDWfL\\nCfG/iBa8YIxol5pw39I73/M+TF49EIDuq0ihXUHyap8MdpZs\\n-----END RSA PRIVATE KEY-----\\n'
+            "-----BEGIN RSA PRIVATE KEY-----\\nMIIEoAIBAAKCAQEAmTi0yMd35HkIKXgEAVLb14fE094YL5qgGqS5ayq9SHi72mlf\\np0hvMr9dqI1wVELRC6cqNYJio9B031gG3dGI3IMpxLzRptYPOmwXIN+jagV40Pzc\\nz6dExtn1OhFwJKlppoPj/2j0QXHSP7dHmRxmlkaQVZs7qy+twkcckMmHU7g9M3dP\\n89P0sQk6xWYX8lF+0bRv/VpNwBcFQfmy36xHpMgIq8hLlBaOZd2fti5jXrQaGOto\\nZo3gI7QLAY9YyFmfRLutBM+F+9ArvhYdYolroJOv8EvEIpN8cljn21WLH6plL22E\\ncLToH66+t0wcCYDHpqKZ/sLLzcjH6kxIgp/mJQIDAQABAoH/HJqr17uwEhg1vPhT\\nGoG6+Snzp45xVGCCT25odw3ERZmX8R6YZSgqtB8rDd2wFnJ53wrHvgePS6Pw63wg\\nRNi7DsX9nToEocY30kowbrezO9Qom7X4DSJwllinRY1pJy+10AWyjDzCZV5UpBHq\\n/M53W0M4rtPjGpgBSevuRVLym8PRMJAF4/YMKSOGN6grNmmBjsqCRw23Cps6ZiK9\\noE7V2UTcMK6WzPiPCbW1KxLoCx0ihdGH5q8Vj/lsRflKLpKVA9QUNCBXlnFzgEYh\\nYK7RGN0zmmITyQfvjdthvCFyMQJ4V2ccxVxa52zqN04Ywvy/HC1mhS9iy6wSSCtP\\nm2xTAoGBANciuYrof8Z3BWOXLBCsDvBYWzLs+wyIoi0SujVGSl9k9ThrahYTtbxq\\nnEKofeYP5gOzqeNGiKveIW8ZFqtiNNe36zSts6h3nndMKBLB92tGWjSG4yRDC7Tp\\nT0okUAkSDnDNwWONx0vhqdoNiLEIVvCp2HCCTCSxbHHOJcAAYtufAoGBALZTUaZz\\nUxF/WCICbxb9dABqk4hKLUe/3Hwhzb5e1PKTGnWesbnDIkIHqNx86MEcYaQQSGzW\\nZ/zBTUsbOC5qZt0UOuMeXiAb7cmwOEx4hiBYkEt/2xCKqQWNVnSY+4LLpGNZanFE\\nTVKZ5QB2oYNiJ3Lby16YStvRBzGc1TTQo+e7AoGAP4eAlRWNTfUtwTgOCipVCwJ8\\ng/BZPl1Gztqd5EeKhNsSUwPdQwG1BBvTYxfQfdSqDuPKQlQ83cvtwZn+CMQqaJ1m\\nNpso15HjWMVDfC6NOr9+uc4vWzD1TwoqoPFSNSuA2izYc+aVOMI93ydp+yVETzNI\\nuAiyJY/DP2Qp36X9i28CgYAlWUIDl+IvVmfGZ7s7+WV25F4ecBuAdCQFZaNQ2PpE\\nSrAD4iNEC14MKqeDqy6+yEKUKiW77dvVYf+kYAoNMAysQwWhGsprR21ZgHi36YSI\\nQbwlSyaj59Oh6IcKUYBMFc0x8NImK7ivMAlCJAsH7+Zm1/F8CjRjfRk9J4RhUlAR\\nGwKBgC4g7eZ/3fBBlL+eMxhCwK2QDS5E0emVI42676hhXAixPJ3PFePXWUmCFsXd\\nB1gDj7SR7h5nefoxjesCTwcf/rV+MPukjot6C9tEHhAJt7bDUelW9XOULwuEDWfL\\nCfG/iBa8YIxol5pw39I73/M+TF49EIDuq0ihXUHyap8MdpZs\\n-----END RSA PRIVATE KEY-----\\n"
         ],
     )
 
@@ -636,16 +636,16 @@ class AddSSHKeyRequest(BaseModel):
     )
     name: str = Field(
         ...,
-        description='The name of the SSH key.',
-        examples=['my-public-key'],
+        description="The name of the SSH key.",
+        examples=["my-public-key"],
         max_length=64,
         min_length=1,
     )
     public_key: str | None = Field(
         default=None,
-        description='The public key for the SSH key.',
+        description="The public key for the SSH key.",
         examples=[
-            'ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICN+lJwsONkwrdsSnQsu1ydUkIuIg5oOC+Eslvmtt60T noname'
+            "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICN+lJwsONkwrdsSnQsu1ydUkIuIg5oOC+Eslvmtt60T noname"
         ],
         max_length=4096,
         min_length=1,
@@ -660,8 +660,8 @@ class EmptyResponse(BaseModel):
 
 
 class UserStatus(Enum):
-    active = 'active'
-    deactivated = 'deactivated'
+    active = "active"
+    deactivated = "deactivated"
 
 
 class User(BaseModel):
@@ -670,11 +670,11 @@ class User(BaseModel):
     )
     id: str = Field(
         ...,
-        description='The unique identifier for the user.',
-        examples=['3da5a70a57a7422ea8a7203f98b2198b'],
+        description="The unique identifier for the user.",
+        examples=["3da5a70a57a7422ea8a7203f98b2198b"],
     )
     email: str = Field(
-        ..., description='The email address of the user.', examples=['me@example.com']
+        ..., description="The email address of the user.", examples=["me@example.com"]
     )
     status: UserStatus = Field(..., description="The status of the user's account.")
 
@@ -685,34 +685,34 @@ class Filesystem(BaseModel):
     )
     id: str = Field(
         ...,
-        description='The unique identifier (ID) of the filesystem.',
-        examples=['398578a2336b49079e74043f0bd2cfe8'],
+        description="The unique identifier (ID) of the filesystem.",
+        examples=["398578a2336b49079e74043f0bd2cfe8"],
     )
     name: str = Field(
-        ..., description='The name of the filesystem.', examples=['my-filesystem']
+        ..., description="The name of the filesystem.", examples=["my-filesystem"]
     )
     mount_point: str = Field(
         ...,
-        description='The DEFAULT absolute path indicating where on instances the filesystem will be mounted.\nIf `file_system_mounts` were used at launch time, the actual mount point is in the\ninstance response.',
-        examples=['/lambda/nfs/my-filesystem'],
+        description="The DEFAULT absolute path indicating where on instances the filesystem will be mounted.\nIf `file_system_mounts` were used at launch time, the actual mount point is in the\ninstance response.",
+        examples=["/lambda/nfs/my-filesystem"],
     )
     created: AwareDatetime = Field(
         ...,
-        description='The date and time at which the filesystem was created. Formatted as an ISO 8601 timestamp.',
+        description="The date and time at which the filesystem was created. Formatted as an ISO 8601 timestamp.",
     )
     created_by: User = Field(
-        ..., description='The user in your Team that created the filesystem.'
+        ..., description="The user in your Team that created the filesystem."
     )
     is_in_use: bool = Field(
         ...,
-        description='Whether the filesystem is currently mounted to an instance. Filesystems that\nare mounted cannot be deleted.',
+        description="Whether the filesystem is currently mounted to an instance. Filesystems that\nare mounted cannot be deleted.",
     )
     region: Region = Field(
-        ..., description='The region in which the filesystem is deployed.'
+        ..., description="The region in which the filesystem is deployed."
     )
     bytes_used: int | None = Field(
         default=None,
-        description='The approximate amount of storage used by the filesystem in bytes. This estimate is\nupdated every few hours.',
+        description="The approximate amount of storage used by the filesystem in bytes. This estimate is\nupdated every few hours.",
     )
 
 
@@ -720,13 +720,13 @@ class ApiErrorDuplicate(BaseModel):
     model_config = ConfigDict(
         frozen=True,
     )
-    code: Literal['global/duplicate'] = Field(
-        ..., description='The unique identifier for the type of error.'
+    code: Literal["global/duplicate"] = Field(
+        ..., description="The unique identifier for the type of error."
     )
-    message: str = Field(..., description='A description of the error.')
+    message: str = Field(..., description="A description of the error.")
     suggestion: str | None = Field(
         default=None,
-        description='One or more suggestions of possible ways to fix the error.',
+        description="One or more suggestions of possible ways to fix the error.",
     )
 
 
@@ -736,16 +736,16 @@ class FilesystemCreateRequest(BaseModel):
     )
     name: str = Field(
         ...,
-        description='The name of the filesystem.',
-        examples=['my-filesystem'],
+        description="The name of the filesystem.",
+        examples=["my-filesystem"],
         max_length=60,
         min_length=1,
-        pattern='^[a-zA-Z]+[0-9a-zA-Z-]*$',
+        pattern="^[a-zA-Z]+[0-9a-zA-Z-]*$",
     )
     region: PublicRegionCode = Field(
         ...,
-        description='The region in which you want to create the filesystem.',
-        examples=['us-west-1'],
+        description="The region in which you want to create the filesystem.",
+        examples=["us-west-1"],
     )
 
 
@@ -755,8 +755,8 @@ class FilesystemDeleteResponse(BaseModel):
     )
     deleted_ids: list[str] = Field(
         ...,
-        description='The unique identifiers of the filesystems that were deleted.',
-        examples=[['398578a2336b49079e74043f0bd2cfe8']],
+        description="The unique identifiers of the filesystems that were deleted.",
+        examples=[["398578a2336b49079e74043f0bd2cfe8"]],
     )
 
 
@@ -764,13 +764,13 @@ class ApiErrorFilesystemNotFound(BaseModel):
     model_config = ConfigDict(
         frozen=True,
     )
-    code: Literal['global/object-does-not-exist'] = Field(
-        ..., description='The unique identifier for the type of error.'
+    code: Literal["global/object-does-not-exist"] = Field(
+        ..., description="The unique identifier for the type of error."
     )
-    message: str = Field(..., description='A description of the error.')
+    message: str = Field(..., description="A description of the error.")
     suggestion: str | None = Field(
         default=None,
-        description='One or more suggestions of possible ways to fix the error.',
+        description="One or more suggestions of possible ways to fix the error.",
     )
 
 
@@ -778,19 +778,19 @@ class ApiErrorFilesystemInUse(BaseModel):
     model_config = ConfigDict(
         frozen=True,
     )
-    code: Literal['filesystems/filesystem-in-use'] = Field(
-        ..., description='The unique identifier for the type of error.'
+    code: Literal["filesystems/filesystem-in-use"] = Field(
+        ..., description="The unique identifier for the type of error."
     )
-    message: str = Field(..., description='A description of the error.')
+    message: str = Field(..., description="A description of the error.")
     suggestion: str | None = Field(
         default=None,
-        description='One or more suggestions of possible ways to fix the error.',
+        description="One or more suggestions of possible ways to fix the error.",
     )
 
 
 class ImageArchitecture(Enum):
-    x86_64 = 'x86_64'
-    arm64 = 'arm64'
+    x86_64 = "x86_64"
+    arm64 = "arm64"
 
 
 class Image(BaseModel):
@@ -799,42 +799,42 @@ class Image(BaseModel):
     )
     id: str = Field(
         ...,
-        description='The unique identifier (ID) for an image.',
-        examples=['43336648-096d-4cba-9aa2-f9bb7727639d'],
+        description="The unique identifier (ID) for an image.",
+        examples=["43336648-096d-4cba-9aa2-f9bb7727639d"],
     )
     created_time: AwareDatetime = Field(
-        ..., description='The date and time that the image was created.'
+        ..., description="The date and time that the image was created."
     )
     updated_time: AwareDatetime = Field(
-        ..., description='The date and time that the image was last updated.'
+        ..., description="The date and time that the image was last updated."
     )
     name: str = Field(
         ...,
-        description='The human-readable identifier for an image.',
-        examples=['ubuntu-24.04.01'],
+        description="The human-readable identifier for an image.",
+        examples=["ubuntu-24.04.01"],
     )
     description: str = Field(
         ...,
-        description='Additional information about the image.',
-        examples=['Ubuntu LTS'],
+        description="Additional information about the image.",
+        examples=["Ubuntu LTS"],
     )
     family: str = Field(
-        ..., description='The family the image belongs to.', examples=['ubuntu-lts']
+        ..., description="The family the image belongs to.", examples=["ubuntu-lts"]
     )
-    version: str = Field(..., description='The image version.', examples=['24.04.01'])
+    version: str = Field(..., description="The image version.", examples=["24.04.01"])
     architecture: ImageArchitecture = Field(
-        ..., description='The CPU architecture the image supports.'
+        ..., description="The CPU architecture the image supports."
     )
     region: Region = Field(
-        ..., description='The region in which this image is available.'
+        ..., description="The region in which this image is available."
     )
 
 
 class NetworkProtocol(Enum):
-    tcp = 'tcp'
-    udp = 'udp'
-    icmp = 'icmp'
-    all = 'all'
+    tcp = "tcp"
+    udp = "udp"
+    icmp = "icmp"
+    all = "all"
 
 
 class PortRangeItem(RootModel[int]):
@@ -849,24 +849,24 @@ class FirewallRule(BaseModel):
         frozen=True,
     )
     protocol: NetworkProtocol = Field(
-        ..., description='The protocol to which the rule applies.', examples=['tcp']
+        ..., description="The protocol to which the rule applies.", examples=["tcp"]
     )
     port_range: list[PortRangeItem] | None = Field(
         default=None,
-        description='An inclusive range of network ports specified as `[min, max]`.\nNot allowed for the `icmp` protocol but required for the others.\n\nTo specify a single port, list it twice (for example, `[22,22]`).',
+        description="An inclusive range of network ports specified as `[min, max]`.\nNot allowed for the `icmp` protocol but required for the others.\n\nTo specify a single port, list it twice (for example, `[22,22]`).",
         examples=[[22, 22]],
         max_length=2,
         min_length=2,
     )
     source_network: str = Field(
         ...,
-        description='The set of source IPv4 addresses from which you want to allow inbound\ntraffic. These addresses must be specified in CIDR notation. You can\nspecify individual public IPv4 CIDR blocks such as `1.2.3.4` or\n`1.2.3.4/32`, or you can specify `0.0.0.0/0` to allow access from any\naddress.\n\nThis value is a string consisting of a public IPv4 address optionally\nfollowed by a slash (/) and an integer mask (the network prefix).\nIf no mask is provided, the API assumes `/32` by default.',
-        examples=['0.0.0.0/0'],
+        description="The set of source IPv4 addresses from which you want to allow inbound\ntraffic. These addresses must be specified in CIDR notation. You can\nspecify individual public IPv4 CIDR blocks such as `1.2.3.4` or\n`1.2.3.4/32`, or you can specify `0.0.0.0/0` to allow access from any\naddress.\n\nThis value is a string consisting of a public IPv4 address optionally\nfollowed by a slash (/) and an integer mask (the network prefix).\nIf no mask is provided, the API assumes `/32` by default.",
+        examples=["0.0.0.0/0"],
     )
     description: str = Field(
         ...,
-        description='A human-readable description of the rule.',
-        examples=['Allow SSH from anywhere'],
+        description="A human-readable description of the rule.",
+        examples=["Allow SSH from anywhere"],
         max_length=128,
         min_length=0,
     )
@@ -877,7 +877,7 @@ class FirewallRulesPutRequest(BaseModel):
         frozen=True,
     )
     data: list[FirewallRule] = Field(
-        ..., description='The list of inbound firewall rules.'
+        ..., description="The list of inbound firewall rules."
     )
 
 
@@ -887,27 +887,27 @@ class FirewallRuleset(BaseModel):
     )
     id: str = Field(
         ...,
-        description='The unique identifier of the firewall ruleset.',
-        examples=['c4d291f47f9d436fa39f58493ce3b50d'],
+        description="The unique identifier of the firewall ruleset.",
+        examples=["c4d291f47f9d436fa39f58493ce3b50d"],
     )
     name: str = Field(
         ...,
-        description='The name of the firewall ruleset.',
-        examples=['My Firewall Ruleset'],
+        description="The name of the firewall ruleset.",
+        examples=["My Firewall Ruleset"],
     )
     region: Region = Field(
-        ..., description='The region in which the firewall ruleset is deployed.'
+        ..., description="The region in which the firewall ruleset is deployed."
     )
     rules: list[FirewallRule] = Field(
-        ..., description='The list of firewall rules in this ruleset.'
+        ..., description="The list of firewall rules in this ruleset."
     )
     created: AwareDatetime = Field(
         ...,
-        description='The date and time at which the firewall ruleset was created. Formatted as an ISO 8601 timestamp.',
+        description="The date and time at which the firewall ruleset was created. Formatted as an ISO 8601 timestamp.",
     )
     instance_ids: list[str] = Field(
         ...,
-        description='The IDs of instances this firewall ruleset is associated with.',
+        description="The IDs of instances this firewall ruleset is associated with.",
     )
 
 
@@ -915,12 +915,12 @@ class ApiErrorInternal(BaseModel):
     model_config = ConfigDict(
         frozen=True,
     )
-    code: Literal['global/internal-error'] = Field(
-        ..., description='The unique identifier for the type of error.'
+    code: Literal["global/internal-error"] = Field(
+        ..., description="The unique identifier for the type of error."
     )
-    message: str = Field(..., description='A description of the error.')
+    message: str = Field(..., description="A description of the error.")
     suggestion: str = Field(
-        ..., description='One or more suggestions of possible ways to fix the error.'
+        ..., description="One or more suggestions of possible ways to fix the error."
     )
 
 
@@ -930,15 +930,15 @@ class FirewallRulesetCreateRequest(BaseModel):
     )
     name: str = Field(
         ...,
-        description='The name of the firewall ruleset.',
-        examples=['My Firewall Ruleset'],
+        description="The name of the firewall ruleset.",
+        examples=["My Firewall Ruleset"],
         max_length=64,
     )
     region: PublicRegionCode = Field(
-        ..., description='The region in which the firewall ruleset is deployed.'
+        ..., description="The region in which the firewall ruleset is deployed."
     )
     rules: list[FirewallRule] = Field(
-        ..., description='The firewall rules to include in the ruleset.'
+        ..., description="The firewall rules to include in the ruleset."
     )
 
 
@@ -946,18 +946,18 @@ class GlobalFirewallRuleset(BaseModel):
     model_config = ConfigDict(
         frozen=True,
     )
-    id: Literal['global'] = Field(
+    id: Literal["global"] = Field(
         ...,
-        description='The unique identifier of the firewall ruleset.',
-        examples=['global'],
+        description="The unique identifier of the firewall ruleset.",
+        examples=["global"],
     )
-    name: Literal['Global Firewall Rules'] = Field(
+    name: Literal["Global Firewall Rules"] = Field(
         ...,
-        description='The name of the firewall ruleset.',
-        examples=['Global Firewall Rules'],
+        description="The name of the firewall ruleset.",
+        examples=["Global Firewall Rules"],
     )
     rules: list[FirewallRule] = Field(
-        ..., description='The list of firewall rules in this ruleset.'
+        ..., description="The list of firewall rules in this ruleset."
     )
 
 
@@ -967,7 +967,7 @@ class GlobalFirewallRulesetPatchRequest(BaseModel):
     )
     rules: list[FirewallRule] | None = Field(
         default=None,
-        description='The new firewall rules for the ruleset. If not provided, the rules will not be updated.',
+        description="The new firewall rules for the ruleset. If not provided, the rules will not be updated.",
     )
 
 
@@ -975,12 +975,12 @@ class ApiErrorFirewallRulesetNotFound(BaseModel):
     model_config = ConfigDict(
         frozen=True,
     )
-    code: Literal['global/object-does-not-exist'] = Field(
-        ..., description='The unique identifier for the type of error.'
+    code: Literal["global/object-does-not-exist"] = Field(
+        ..., description="The unique identifier for the type of error."
     )
-    message: str = Field(..., description='A description of the error.')
+    message: str = Field(..., description="A description of the error.")
     suggestion: str = Field(
-        ..., description='One or more suggestions of possible ways to fix the error.'
+        ..., description="One or more suggestions of possible ways to fix the error."
     )
 
 
@@ -990,13 +990,13 @@ class FirewallRulesetPatchRequest(BaseModel):
     )
     name: str | None = Field(
         default=None,
-        description='The new name for the firewall ruleset. If not provided, the name will not be updated.',
-        examples=['My Updated Firewall Ruleset'],
+        description="The new name for the firewall ruleset. If not provided, the name will not be updated.",
+        examples=["My Updated Firewall Ruleset"],
         max_length=64,
     )
     rules: list[FirewallRule] | None = Field(
         default=None,
-        description='The new firewall rules for the ruleset. If not provided, the rules will not be updated.',
+        description="The new firewall rules for the ruleset. If not provided, the rules will not be updated.",
     )
 
 
@@ -1004,12 +1004,12 @@ class ApiErrorFirewallRulesetInUse(BaseModel):
     model_config = ConfigDict(
         frozen=True,
     )
-    code: Literal['firewall-rulesets/firewall-ruleset-in-use'] = Field(
-        ..., description='The unique identifier for the type of error.'
+    code: Literal["firewall-rulesets/firewall-ruleset-in-use"] = Field(
+        ..., description="The unique identifier for the type of error."
     )
-    message: str = Field(..., description='A description of the error.')
+    message: str = Field(..., description="A description of the error.")
     suggestion: str = Field(
-        ..., description='One or more suggestions of possible ways to fix the error.'
+        ..., description="One or more suggestions of possible ways to fix the error."
     )
 
 
@@ -1019,60 +1019,60 @@ class AuditEvent(BaseModel):
     )
     service_name: str = Field(
         ...,
-        description='The service in which the action was performed.',
-        examples=['cloud'],
+        description="The service in which the action was performed.",
+        examples=["cloud"],
     )
     resource_name: str = Field(
-        ..., description='The type of resource that was affected.', examples=['api_key']
+        ..., description="The type of resource that was affected.", examples=["api_key"]
     )
     action: str = Field(
-        ..., description='The action that was performed.', examples=['created']
+        ..., description="The action that was performed.", examples=["created"]
     )
     catalog_version: str = Field(
         ...,
-        description='The version of the event catalog schema.',
-        examples=['2025-09-06'],
+        description="The version of the event catalog schema.",
+        examples=["2025-09-06"],
     )
     event_id: str = Field(
         ...,
-        description='The unique identifier (ID) for this audit event.',
-        examples=['0123456789abcdef0123456789abcdef'],
+        description="The unique identifier (ID) for this audit event.",
+        examples=["0123456789abcdef0123456789abcdef"],
     )
     event_time: str = Field(
         ...,
-        description='The UTC timestamp for when the event occurred (ISO 8601 format).',
-        examples=['2025-09-15T10:30:45.123456Z'],
+        description="The UTC timestamp for when the event occurred (ISO 8601 format).",
+        examples=["2025-09-15T10:30:45.123456Z"],
     )
     actor_lrn: str | None = Field(
         ...,
-        description='The Lambda Resource Name (LRN) of the actor who performed the action.',
-        examples=['lrn:cloud:identity:00112233445566778899aabbccddeeff'],
+        description="The Lambda Resource Name (LRN) of the actor who performed the action.",
+        examples=["lrn:cloud:identity:00112233445566778899aabbccddeeff"],
     )
     resource_lrns: list[str] = Field(
         ...,
-        description='The Lambda Resource Names (LRNs) of the resources affected by this action.',
-        examples=[['lrn:cloud:api_key:ffeeddccbbaa99887766554433221100']],
+        description="The Lambda Resource Names (LRNs) of the resources affected by this action.",
+        examples=[["lrn:cloud:api_key:ffeeddccbbaa99887766554433221100"]],
     )
     resource_owner_lrn: str | None = Field(
         ...,
-        description='The Lambda Resource Name (LRN) of the account that owns the affected resources.',
-        examples=['lrn:cloud:account:fedcba9876543210fedcba9876543210'],
+        description="The Lambda Resource Name (LRN) of the account that owns the affected resources.",
+        examples=["lrn:cloud:account:fedcba9876543210fedcba9876543210"],
     )
     request_api_key_lrn: str | None = Field(
         ...,
-        description='The Lambda Resource Name (LRN) of the API key used to authenticate the request, if applicable.',
-        examples=['lrn:cloud:api_key:0f1e2d3c4b5a69788796a5b4c3d2e1f0'],
+        description="The Lambda Resource Name (LRN) of the API key used to authenticate the request, if applicable.",
+        examples=["lrn:cloud:api_key:0f1e2d3c4b5a69788796a5b4c3d2e1f0"],
     )
     additional_details: dict[str, Any] = Field(
         ...,
-        description='Additional event-specific details. The exact keys returned vary by event type.',
+        description="Additional event-specific details. The exact keys returned vary by event type.",
         examples=[
-            {'api_key_lrn': 'lrn:cloud:api_key:ffeeddccbbaa99887766554433221100'},
-            {'ssh_key_lrn': 'lrn:cloud:ssh_key:fedc7654ba983210dcba5432987610fe'},
+            {"api_key_lrn": "lrn:cloud:api_key:ffeeddccbbaa99887766554433221100"},
+            {"ssh_key_lrn": "lrn:cloud:ssh_key:fedc7654ba983210dcba5432987610fe"},
             {
-                'instance_lrn': 'lrn:cloud:instance:ef016789234abcd0123489ab4567cdef',
-                'instance_type': 'gpu_1x_a10',
-                'region': 'us-west-1',
+                "instance_lrn": "lrn:cloud:instance:ef016789234abcd0123489ab4567cdef",
+                "instance_type": "gpu_1x_a10",
+                "region": "us-west-1",
             },
         ],
     )
@@ -1082,9 +1082,9 @@ class AuditEventsPage(BaseModel):
     model_config = ConfigDict(
         frozen=True,
     )
-    events: list[AuditEvent] = Field(..., description='The list of audit events.')
+    events: list[AuditEvent] = Field(..., description="The list of audit events.")
     page_token: str | None = Field(
         ...,
-        description='A page token. Provide this token in your next request to retrieve the next page of results. If there are no additional pages, this field has a null value.',
-        examples=['eyJuZXh0IjoxNzA0MTk2ODAwfQ=='],
+        description="A page token. Provide this token in your next request to retrieve the next page of results. If there are no additional pages, this field has a null value.",
+        examples=["eyJuZXh0IjoxNzA0MTk2ODAwfQ=="],
     )

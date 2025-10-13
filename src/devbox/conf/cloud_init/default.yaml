@@ -1,3 +1,0 @@
-# Cloud-init configuration
-template_path: null  # Path to custom cloud-init YAML template
-use_default: true    # Use built-in default cloud-init template

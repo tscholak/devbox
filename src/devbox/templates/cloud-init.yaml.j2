@@ -1,0 +1,65 @@
+#cloud-config
+# Cloud-init template for Lambda Labs GPU instances
+# Configures persistent storage and Nix package manager
+package_update: true
+package_upgrade: false
+
+write_files:
+  - path: /etc/profile.d/nix-daemon.sh
+    permissions: '0644'
+    owner: root:root
+    content: |
+      if [ -e /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh ]; then
+        . /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh
+      fi
+
+runcmd:
+  - |
+    set -euxo pipefail
+
+    {% if filesystem_name %}
+    # Setup persistent filesystem structure
+    FS_MOUNT="{{ filesystem_mount }}"
+    mkdir -p "$FS_MOUNT/nix" "$FS_MOUNT/home"
+
+    # Bind mount /nix to persistent storage (for Nix store)
+    if ! mountpoint -q /nix; then
+      mkdir -p /nix
+      mount --bind "$FS_MOUNT/nix" /nix || true
+    fi
+    if ! grep -q "^$FS_MOUNT/nix /nix " /etc/fstab; then
+      echo "$FS_MOUNT/nix /nix none bind 0 0" >> /etc/fstab
+    fi
+
+    # Bind mount /home to persistent storage (for user data)
+    # First, copy any existing home dirs to persistent storage
+    if [ -d /home ] && [ ! -L /home ]; then
+      rsync -a /home/ "$FS_MOUNT/home/" || true
+    fi
+
+    # Remove ephemeral /home and bind mount from persistent storage
+    if ! mountpoint -q /home; then
+      rm -rf /home
+      mkdir -p /home
+      mount --bind "$FS_MOUNT/home" /home || true
+    fi
+    if ! grep -q "^$FS_MOUNT/home /home " /etc/fstab; then
+      echo "$FS_MOUNT/home /home none bind 0 0" >> /etc/fstab
+    fi
+    {% endif %}
+
+    # Install Nix using Determinate Systems installer (better for automation)
+    if ! command -v nix >/dev/null 2>&1; then
+      curl -L https://install.determinate.systems/nix | sh -s -- install --no-confirm
+    fi
+
+    # Ensure nix profile is loaded in future shells
+    if ! grep -q 'nix-daemon.sh' /etc/bash.bashrc; then
+      echo '. /etc/profile.d/nix-daemon.sh' >> /etc/bash.bashrc
+    fi
+
+    # Quick smoke test
+    . /etc/profile.d/nix-daemon.sh || true
+    nix --version || true
+
+    echo "Cloud-init complete: Nix installed{% if filesystem_name %}, persistent /nix and /home at {{ filesystem_mount }}{% endif %}"

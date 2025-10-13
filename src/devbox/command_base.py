@@ -8,7 +8,7 @@ from typing import ClassVar
 from pydantic import BaseModel, Field
 from rich.console import Console
 
-from devbox.config import ApiConfig, CloudInitConfig, SshConfig, WaitConfig
+from devbox.config import ApiConfig, SshConfig, WaitConfig
 
 
 class CommandError(Exception):
@@ -20,7 +20,9 @@ class CommandError(Exception):
 class BaseCommand(ABC):
     """Base class for commands."""
 
-    def __init__(self, config: BaseCommandConfig, console: Console | None = None) -> None:
+    def __init__(
+        self, config: BaseCommandConfig, console: Console | None = None
+    ) -> None:
         """Initialize command.
 
         Args:
@@ -49,7 +51,6 @@ class BaseCommandConfig(BaseModel, ABC):
 
     # Global configurations (available to all commands)
     api: ApiConfig = Field(description="API configuration")
-    cloud_init: CloudInitConfig = Field(description="Cloud-init configuration")
     ssh: SshConfig = Field(description="SSH configuration")
     wait: WaitConfig = Field(description="Wait operation configuration")
 

@@ -13,7 +13,7 @@ handlers:
     formatter: rich_fmt
     rich_tracebacks: true
     tracebacks_show_locals: false
-    markup: true
+    markup: false
     show_time: false
     show_path: false
     enable_link_path: false

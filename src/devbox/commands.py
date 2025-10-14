@@ -724,11 +724,7 @@ class UpCommand(BaseCommand):
                     continue
 
                 match = next((i for i in instances if i.id == iid), None)
-                if (
-                    match
-                    and match.ip
-                    and match.status in {InstanceStatus.booting, InstanceStatus.active}
-                ):
+                if match and match.ip and match.status == InstanceStatus.active:
                     ready[iid] = match
                     self.console.print(
                         f"[green]✓[/green] Ready: [cyan]{match.id}[/cyan] "
@@ -866,11 +862,7 @@ class WaitCommand(BaseCommand):
             while time.time() < deadline:
                 instances = await client.list_instances()
                 match = next((i for i in instances if i.id == instance_id), None)
-                if (
-                    match
-                    and match.ip
-                    and match.status in {InstanceStatus.booting, InstanceStatus.active}
-                ):
+                if match and match.ip and match.status == InstanceStatus.active:
                     return match
                 await asyncio.sleep(self.config.wait.poll_interval)
         raise TimeoutError(

@@ -43,16 +43,15 @@ runcmd:
     # Bind mount /home/ubuntu to persistent storage (for user data)
     mkdir -p "$FS_MOUNT/ubuntu"
     if ! mountpoint -q /home/{{ ssh_username }}; then
-      # Copy original home directory to NFS if it exists and NFS location is empty
-      if [ -d /home/{{ ssh_username }} ] && [ ! -d "$FS_MOUNT/ubuntu/.bashrc" ]; then
-        cp -a /home/{{ ssh_username }}/. "$FS_MOUNT/ubuntu/" || true
+      # On first use: copy system-generated home directory to NFS if NFS location is empty
+      if [ -z "$(ls -A $FS_MOUNT/ubuntu)" ]; then
+        echo "First use: copying initial home directory to persistent storage..."
+        cp -a /home/{{ ssh_username }}/. "$FS_MOUNT/ubuntu/"
       fi
 
       # Bind mount the persistent home directory
-      mount --bind "$FS_MOUNT/ubuntu" /home/{{ ssh_username }} || true
-    fi
-    if ! grep -q "^$FS_MOUNT/ubuntu /home/{{ ssh_username }} " /etc/fstab; then
-      echo "$FS_MOUNT/ubuntu /home/{{ ssh_username }} none bind 0 0" >> /etc/fstab
+      # Note: Not added to fstab because systemd misinterprets it as NFS submount
+      mount --bind "$FS_MOUNT/ubuntu" /home/{{ ssh_username }}
     fi
     {% endif %}
 

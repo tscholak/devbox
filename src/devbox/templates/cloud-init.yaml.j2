@@ -15,36 +15,44 @@ write_files:
 
 runcmd:
   - |
-    set -euxo pipefail
+    #!/bin/bash
+    set -ux
 
     {% if filesystem_name %}
     # Setup persistent filesystem structure
     FS_MOUNT="{{ filesystem_mount }}"
-    mkdir -p "$FS_MOUNT/nix" "$FS_MOUNT/home"
+    mkdir -p "$FS_MOUNT"
 
-    # Bind mount /nix to persistent storage (for Nix store)
+    # Create loop-mounted disk image for /nix (persistent with xattr support)
+    NIX_IMG="$FS_MOUNT/nix.img"
+    if [ ! -f "$NIX_IMG" ]; then
+      echo "Creating 100GB sparse disk image for Nix store..."
+      truncate -s 100G "$NIX_IMG"
+      mkfs.ext4 -F "$NIX_IMG"
+    fi
+
+    # Mount the disk image at /nix
     if ! mountpoint -q /nix; then
       mkdir -p /nix
-      mount --bind "$FS_MOUNT/nix" /nix || true
+      mount -o loop "$NIX_IMG" /nix || true
     fi
-    if ! grep -q "^$FS_MOUNT/nix /nix " /etc/fstab; then
-      echo "$FS_MOUNT/nix /nix none bind 0 0" >> /etc/fstab
-    fi
-
-    # Bind mount /home to persistent storage (for user data)
-    # First, copy any existing home dirs to persistent storage
-    if [ -d /home ] && [ ! -L /home ]; then
-      rsync -a /home/ "$FS_MOUNT/home/" || true
+    if ! grep -q "$NIX_IMG /nix " /etc/fstab; then
+      echo "$NIX_IMG /nix ext4 loop 0 0" >> /etc/fstab
     fi
 
-    # Remove ephemeral /home and bind mount from persistent storage
-    if ! mountpoint -q /home; then
-      rm -rf /home
-      mkdir -p /home
-      mount --bind "$FS_MOUNT/home" /home || true
+    # Bind mount /home/ubuntu to persistent storage (for user data)
+    mkdir -p "$FS_MOUNT/ubuntu"
+    if ! mountpoint -q /home/{{ ssh_username }}; then
+      # Copy original home directory to NFS if it exists and NFS location is empty
+      if [ -d /home/{{ ssh_username }} ] && [ ! -d "$FS_MOUNT/ubuntu/.bashrc" ]; then
+        cp -a /home/{{ ssh_username }}/. "$FS_MOUNT/ubuntu/" || true
+      fi
+
+      # Bind mount the persistent home directory
+      mount --bind "$FS_MOUNT/ubuntu" /home/{{ ssh_username }} || true
     fi
-    if ! grep -q "^$FS_MOUNT/home /home " /etc/fstab; then
-      echo "$FS_MOUNT/home /home none bind 0 0" >> /etc/fstab
+    if ! grep -q "^$FS_MOUNT/ubuntu /home/{{ ssh_username }} " /etc/fstab; then
+      echo "$FS_MOUNT/ubuntu /home/{{ ssh_username }} none bind 0 0" >> /etc/fstab
     fi
     {% endif %}
 

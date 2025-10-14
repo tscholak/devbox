@@ -1,4 +1,4 @@
 # @package _global_
 
 command: down
-instance_id: ???  # Required: Instance ID to terminate
+instance_identifier: ???  # Required: Instance name or ID to terminate

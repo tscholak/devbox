@@ -1,4 +1,4 @@
 # @package _global_
 
 command: ssh
-instance_id: ???  # Required: Instance ID
+instance_identifier: ???  # Required: Instance name or ID

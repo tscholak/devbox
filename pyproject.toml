@@ -18,6 +18,10 @@ packages = [
     {include = "lambdalabs", from = "src"},
     {include = "devbox", from = "src"}
 ]
+include = [
+    {path = "src/devbox/conf", format = ["sdist", "wheel"]},
+    {path = "src/devbox/templates", format = ["sdist", "wheel"]}
+]
 
 [tool.poetry.dependencies]
 python = ">=3.11"

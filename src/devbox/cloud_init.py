@@ -9,15 +9,18 @@ from typing import Any
 from jinja2 import Template
 
 
-def load_cloud_init_template(context: dict[str, Any]) -> str:
+def load_cloud_init_template(
+    context: dict[str, Any], template_name: str = "cloud-init.yaml.j2"
+) -> str:
     """Load and render cloud-init template from package resources.
 
-    The template is loaded from devbox/templates/cloud-init.yaml.j2 and
-    rendered with the provided Jinja2 context variables.
+    The template is loaded from devbox/templates/ and rendered with the
+    provided Jinja2 context variables.
 
     Args:
         context: Dictionary of variables for Jinja2 template rendering.
                 Expected keys: filesystem_name, filesystem_mount, ssh_username
+        template_name: Name of the template file to load (default: cloud-init.yaml.j2)
 
     Returns:
         Rendered cloud-init YAML content
@@ -27,7 +30,7 @@ def load_cloud_init_template(context: dict[str, Any]) -> str:
         jinja2.TemplateError: If template rendering fails
     """
     # Load template from package resources
-    template_path = files("devbox.templates").joinpath("cloud-init.yaml.j2")
+    template_path = files("devbox.templates").joinpath(template_name)
     template_text = template_path.read_text(encoding="utf-8")
 
     # Render with Jinja2

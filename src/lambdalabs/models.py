@@ -7,7 +7,7 @@ from __future__ import annotations
 from enum import Enum
 from typing import Any, Literal
 
-from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, RootModel, SecretStr
+from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, RootModel
 
 
 class ApiErrorUnauthorized(BaseModel):
@@ -516,7 +516,7 @@ class InstanceLaunchRequest(BaseModel):
         default=None,
         description="The machine image you want to use. Defaults to the latest Lambda Stack image.",
     )
-    user_data: SecretStr | None = Field(
+    user_data: str | None = Field(
         default=None,
         description="An instance configuration string specified in a valid\n[cloud-init user-data](https://cloudinit.readthedocs.io/en/latest/explanation/format.html)\nformat. You can use this field to configure your instance on launch. The\nuser data string must be plain text and cannot exceed 1MB in size.",
     )

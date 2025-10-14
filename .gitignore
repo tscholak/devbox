@@ -8,3 +8,28 @@ devenv.local.yaml
 
 # pre-commit
 .pre-commit-config.yaml
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+dist/
+build/
+
+# Hydra outputs
+outputs/
+multirun/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db

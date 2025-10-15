@@ -8,9 +8,10 @@ import warnings
 import hydra
 from omegaconf import DictConfig, OmegaConf
 from omegaconf.errors import InterpolationResolutionError
+from rich.console import Console
 
 from devbox.command_base import CommandError
-from devbox.commands import command_adapter
+from devbox.commands import command_adapter, render_api_error
 from lambdalabs import ApiError
 
 
@@ -43,7 +44,9 @@ def main(cfg: DictConfig) -> None:
         log.error("Command error: %s", e)
         sys.exit(1)
     except ApiError as e:
-        log.error("API error: %s", e)
+        # Render API errors using the standard visual language
+        console = Console(stderr=True)
+        render_api_error(console, e)
         sys.exit(1)
     except Exception as e:
         log.exception("Fatal error: %s", e)

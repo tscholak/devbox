@@ -2,11 +2,28 @@
 
 from __future__ import annotations
 
-from typing import Any
+import json
+from typing import Annotated, Any, TypeVar
 
 import aiohttp
+from pydantic import BaseModel, Field, TypeAdapter, ValidationError
 
 from lambdalabs.models import (
+    ApiErrorAccountInactive,
+    ApiErrorDuplicate,
+    ApiErrorFilesystemInUse,
+    ApiErrorFileSystemInWrongRegion,
+    ApiErrorFilesystemNotFound,
+    ApiErrorFirewallRulesetInUse,
+    ApiErrorFirewallRulesetNotFound,
+    ApiErrorInstanceNotFound,
+    ApiErrorInsufficientCapacity,
+    ApiErrorInternal,
+    ApiErrorInvalidBillingAddress,
+    ApiErrorInvalidParameters,
+    ApiErrorLaunchResourceNotFound,
+    ApiErrorQuotaExceeded,
+    ApiErrorUnauthorized,
     Filesystem,
     FirewallRuleset,
     Image,
@@ -23,10 +40,123 @@ from lambdalabs.models import (
 )
 
 
-class ApiError(Exception):
-    """Lambda Cloud API error."""
+T = TypeVar("T")
 
-    pass
+# Context-specific error unions for different API endpoints
+# These use the same error codes but in different contexts
+
+# Common errors that can occur on any endpoint
+CommonApiError = Annotated[
+    ApiErrorUnauthorized | ApiErrorAccountInactive | ApiErrorInternal,
+    Field(discriminator="code"),
+]
+
+# Instance launch errors
+InstanceLaunchError = Annotated[
+    ApiErrorUnauthorized
+    | ApiErrorAccountInactive
+    | ApiErrorLaunchResourceNotFound
+    | ApiErrorInvalidParameters
+    | ApiErrorInvalidBillingAddress
+    | ApiErrorFileSystemInWrongRegion
+    | ApiErrorInsufficientCapacity
+    | ApiErrorQuotaExceeded
+    | ApiErrorInternal,
+    Field(discriminator="code"),
+]
+
+# Instance operation errors (get, terminate, restart, modify)
+InstanceOperationError = Annotated[
+    ApiErrorUnauthorized
+    | ApiErrorAccountInactive
+    | ApiErrorInstanceNotFound
+    | ApiErrorInvalidParameters
+    | ApiErrorInternal,
+    Field(discriminator="code"),
+]
+
+# Filesystem errors
+FilesystemError = Annotated[
+    ApiErrorUnauthorized
+    | ApiErrorAccountInactive
+    | ApiErrorFilesystemNotFound
+    | ApiErrorFilesystemInUse
+    | ApiErrorDuplicate
+    | ApiErrorInternal,
+    Field(discriminator="code"),
+]
+
+# Firewall ruleset errors
+FirewallRulesetError = Annotated[
+    ApiErrorUnauthorized
+    | ApiErrorAccountInactive
+    | ApiErrorFirewallRulesetNotFound
+    | ApiErrorFirewallRulesetInUse
+    | ApiErrorDuplicate
+    | ApiErrorInternal,
+    Field(discriminator="code"),
+]
+
+# Type adapters for error contexts
+instance_launch_error_adapter = TypeAdapter(InstanceLaunchError)
+instance_operation_error_adapter = TypeAdapter(InstanceOperationError)
+filesystem_error_adapter = TypeAdapter(FilesystemError)
+firewall_ruleset_error_adapter = TypeAdapter(FirewallRulesetError)
+common_error_adapter = TypeAdapter(CommonApiError)
+
+# Type adapters for response data
+instance_list_adapter = TypeAdapter(list[Instance])
+instance_adapter = TypeAdapter(Instance)
+instance_launch_response_adapter = TypeAdapter(InstanceLaunchResponse)
+instance_terminate_response_adapter = TypeAdapter(InstanceTerminateResponse)
+instance_restart_response_adapter = TypeAdapter(InstanceRestartResponse)
+instance_types_adapter = TypeAdapter(InstanceTypes)
+ssh_key_list_adapter = TypeAdapter(list[SSHKey])
+filesystem_list_adapter = TypeAdapter(list[Filesystem])
+image_list_adapter = TypeAdapter(list[Image])
+firewall_ruleset_list_adapter = TypeAdapter(list[FirewallRuleset])
+
+
+class ApiError(Exception):
+    """Lambda Cloud API error with structured error details.
+
+    Attributes:
+        status: HTTP status code
+        method: HTTP method
+        path: API endpoint path
+        error: Parsed error model (code, message, suggestion)
+        raw_text: Raw response text
+    """
+
+    def __init__(
+        self,
+        status: int,
+        method: str,
+        path: str,
+        error: (
+            InstanceLaunchError
+            | InstanceOperationError
+            | FilesystemError
+            | FirewallRulesetError
+            | CommonApiError
+            | None
+        ) = None,
+        raw_text: str | None = None,
+    ):
+        self.status = status
+        self.method = method
+        self.path = path
+        self.error = error
+        self.raw_text = raw_text
+
+        # Build human-readable message
+        parts = [f"{method} {path} -> {status}"]
+        if error:
+            parts.append(f"[{error.code}] {error.message}")
+        elif raw_text:
+            parts.append(raw_text[:200])  # Truncate long errors
+
+        super().__init__(": ".join(parts))
 
 
 class LambdaCloudClient:
@@ -73,39 +203,79 @@ class LambdaCloudClient:
         self,
         method: str,
         path: str,
+        response_adapter: TypeAdapter[T],
+        error_adapter: TypeAdapter[Any],
         *,
-        json: dict[str, Any] | None = None,
-    ) -> dict[str, Any]:
-        """Make an API request.
+        body: BaseModel | None = None,
+    ) -> T:
+        """Make an API request with full Pydantic parsing.
 
         Args:
             method: HTTP method
             path: API endpoint path
-            json: Optional JSON request body
+            response_adapter: TypeAdapter for parsing successful response data
+            error_adapter: TypeAdapter for parsing error responses
+            body: Optional Pydantic model for request body
 
         Returns:
-            JSON response data
+            Parsed response data
 
         Raises:
-            ApiError: If request fails
+            ApiError: If request fails with parsed error details
         """
         assert self._session is not None, "Client must be used as async context manager"
 
         url = f"{self.base_url}{path}"
         headers = {"accept": "application/json"}
 
-        if json is not None:
+        request_json = None
+        if body is not None:
             headers["content-type"] = "application/json"
+            request_json = body.model_dump(
+                exclude_none=True, by_alias=True, mode="json"
+            )
 
         async with self._session.request(
-            method, url, headers=headers, json=json
+            method, url, headers=headers, json=request_json
         ) as resp:
-            if resp.status >= 400:
-                text = await resp.text()
-                raise ApiError(f"{method} {path} -> {resp.status}: {text}")
+            text = await resp.text()
 
-            data: dict[str, Any] = await resp.json()
-            return data
+            if resp.status >= 400:
+                # Try to parse structured error response
+                parsed_error = None
+                try:
+                    error_data = json.loads(text) if text else {}
+                    if "error" in error_data:
+                        parsed_error = error_adapter.validate_python(
+                            error_data["error"]
+                        )
+                except (json.JSONDecodeError, ValidationError):
+                    # Failed to parse structured error, fall back to raw text
+                    pass
+
+                raise ApiError(
+                    status=resp.status,
+                    method=method,
+                    path=path,
+                    error=parsed_error,
+                    raw_text=text if not parsed_error else None,
+                )
+
+            # Parse successful response
+            try:
+                response_data = json.loads(text) if text else {}
+                # Most endpoints wrap data in {"data": ...}
+                if "data" in response_data:
+                    return response_adapter.validate_python(response_data["data"])
+                return response_adapter.validate_python(response_data)
+            except (json.JSONDecodeError, ValidationError) as e:
+                # Response parsing failed - raise as ApiError for consistency
+                raise ApiError(
+                    status=resp.status,
+                    method=method,
+                    path=path,
+                    raw_text=f"Failed to parse response: {e}\n{text[:200]}",
+                ) from None
 
     # Instance operations
 
@@ -115,9 +285,12 @@ class LambdaCloudClient:
         Returns:
             List of Instance objects
         """
-        data = await self._request("GET", "/instances")
-        items = data.get("data", [])
-        return [Instance.model_validate(item) for item in items]
+        return await self._request(
+            "GET",
+            "/instances",
+            instance_list_adapter,
+            common_error_adapter,
+        )
 
     async def get_instance(self, instance_id: str) -> Instance:
         """Get instance by ID.
@@ -128,8 +301,12 @@ class LambdaCloudClient:
         Returns:
             Instance object
         """
-        data = await self._request("GET", f"/instances/{instance_id}")
-        return Instance.model_validate(data.get("data"))
+        return await self._request(
+            "GET",
+            f"/instances/{instance_id}",
+            instance_adapter,
+            instance_operation_error_adapter,
+        )
 
     async def launch_instance(
         self,
@@ -143,9 +320,13 @@ class LambdaCloudClient:
         Returns:
             Launch response with instance IDs
         """
-        payload = request.model_dump(exclude_none=True, by_alias=True, mode="json")
-        data = await self._request("POST", "/instance-operations/launch", json=payload)
-        return InstanceLaunchResponse.model_validate(data.get("data", data))
+        return await self._request(
+            "POST",
+            "/instance-operations/launch",
+            instance_launch_response_adapter,
+            instance_launch_error_adapter,
+            body=request,
+        )
 
     async def terminate_instances(
         self,
@@ -159,11 +340,13 @@ class LambdaCloudClient:
         Returns:
             Terminate response
         """
-        payload = request.model_dump(by_alias=True, mode="json")
-        data = await self._request(
-            "POST", "/instance-operations/terminate", json=payload
+        return await self._request(
+            "POST",
+            "/instance-operations/terminate",
+            instance_terminate_response_adapter,
+            instance_operation_error_adapter,
+            body=request,
         )
-        return InstanceTerminateResponse.model_validate(data.get("data", data))
 
     async def restart_instances(
         self,
@@ -177,9 +360,13 @@ class LambdaCloudClient:
         Returns:
             Restart response
         """
-        payload = request.model_dump(by_alias=True, mode="json")
-        data = await self._request("POST", "/instance-operations/restart", json=payload)
-        return InstanceRestartResponse.model_validate(data.get("data", data))
+        return await self._request(
+            "POST",
+            "/instance-operations/restart",
+            instance_restart_response_adapter,
+            instance_operation_error_adapter,
+            body=request,
+        )
 
     async def modify_instance(
         self,
@@ -195,9 +382,13 @@ class LambdaCloudClient:
         Returns:
             Updated instance
         """
-        payload = request.model_dump(exclude_none=True, by_alias=True, mode="json")
-        data = await self._request("PATCH", f"/instances/{instance_id}", json=payload)
-        return Instance.model_validate(data.get("data"))
+        return await self._request(
+            "PATCH",
+            f"/instances/{instance_id}",
+            instance_adapter,
+            instance_operation_error_adapter,
+            body=request,
+        )
 
     # Instance types
 
@@ -207,8 +398,12 @@ class LambdaCloudClient:
         Returns:
             Instance types with availability
         """
-        data = await self._request("GET", "/instance-types")
-        return InstanceTypes.model_validate(data.get("data", data))
+        return await self._request(
+            "GET",
+            "/instance-types",
+            instance_types_adapter,
+            common_error_adapter,
+        )
 
     # SSH keys
 
@@ -218,9 +413,12 @@ class LambdaCloudClient:
         Returns:
             List of SSH keys
         """
-        data = await self._request("GET", "/ssh-keys")
-        items = data.get("data", [])
-        return [SSHKey.model_validate(item) for item in items]
+        return await self._request(
+            "GET",
+            "/ssh-keys",
+            ssh_key_list_adapter,
+            common_error_adapter,
+        )
 
     # Filesystems
 
@@ -230,9 +428,12 @@ class LambdaCloudClient:
         Returns:
             List of filesystems
         """
-        data = await self._request("GET", "/file-systems")
-        items = data.get("data", [])
-        return [Filesystem.model_validate(item) for item in items]
+        return await self._request(
+            "GET",
+            "/file-systems",
+            filesystem_list_adapter,
+            filesystem_error_adapter,
+        )
 
     # Images
 
@@ -242,9 +443,12 @@ class LambdaCloudClient:
         Returns:
             List of images
         """
-        data = await self._request("GET", "/images")
-        items = data.get("data", [])
-        return [Image.model_validate(item) for item in items]
+        return await self._request(
+            "GET",
+            "/images",
+            image_list_adapter,
+            common_error_adapter,
+        )
 
     # Firewall rulesets
 
@@ -254,6 +458,9 @@ class LambdaCloudClient:
         Returns:
             List of firewall rulesets
         """
-        data = await self._request("GET", "/firewall-rulesets")
-        items = data.get("data", [])
-        return [FirewallRuleset.model_validate(item) for item in items]
+        return await self._request(
+            "GET",
+            "/firewall-rulesets",
+            firewall_ruleset_list_adapter,
+            firewall_ruleset_error_adapter,
+        )

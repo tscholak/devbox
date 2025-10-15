@@ -194,6 +194,84 @@ def format_instance_status(status: InstanceStatus) -> str:
     return status.value
 
 
+def render_api_error(console, error) -> None:
+    """Render an API error using the standard visual language.
+
+    Args:
+        console: Rich console instance
+        error: ApiError exception with parsed error details
+    """
+    from lambdalabs import ApiError
+    from lambdalabs.models import (
+        ApiErrorAccountInactive,
+        ApiErrorDuplicate,
+        ApiErrorFilesystemInUse,
+        ApiErrorFileSystemInWrongRegion,
+        ApiErrorFilesystemNotFound,
+        ApiErrorFirewallRulesetInUse,
+        ApiErrorFirewallRulesetNotFound,
+        ApiErrorInstanceNotFound,
+        ApiErrorInsufficientCapacity,
+        ApiErrorInternal,
+        ApiErrorInvalidBillingAddress,
+        ApiErrorInvalidParameters,
+        ApiErrorLaunchResourceNotFound,
+        ApiErrorQuotaExceeded,
+        ApiErrorUnauthorized,
+    )
+
+    if not isinstance(error, ApiError):
+        console.print(f"[red]ERROR[/red] {error}")
+        return
+
+    # Header
+    console.print("\n[bold red]API Error[/bold red]")
+
+    # Create details table
+    table = create_details_table()
+    table.add_row("Request:", f"{error.method} {error.path}")
+    table.add_row("Status:", str(error.status))
+
+    match error.error:
+        case (
+            ApiErrorUnauthorized()
+            | ApiErrorAccountInactive()
+            | ApiErrorInternal()
+            | ApiErrorInstanceNotFound()
+            | ApiErrorLaunchResourceNotFound()
+            | ApiErrorFilesystemNotFound()
+            | ApiErrorFirewallRulesetNotFound()
+            | ApiErrorInvalidParameters()
+            | ApiErrorInvalidBillingAddress()
+            | ApiErrorFileSystemInWrongRegion()
+            | ApiErrorInsufficientCapacity()
+            | ApiErrorQuotaExceeded()
+            | ApiErrorFilesystemInUse()
+            | ApiErrorFirewallRulesetInUse()
+            | ApiErrorDuplicate()
+        ) as err:
+            # All error models have code and message
+            table.add_row("Code:", err.code)
+            table.add_row("Message:", err.message)
+            # Some have suggestion field
+            match err:
+                case (
+                    ApiErrorLaunchResourceNotFound(suggestion=s)
+                    | ApiErrorInvalidParameters(suggestion=s)
+                    | ApiErrorInvalidBillingAddress(suggestion=s)
+                    | ApiErrorFileSystemInWrongRegion(suggestion=s)
+                    | ApiErrorInsufficientCapacity(suggestion=s)
+                    | ApiErrorQuotaExceeded(suggestion=s)
+                ) if s:
+                    table.add_row("Suggestion:", s)
+        case None:
+            # No parsed error, use raw text
+            if error.raw_text:
+                table.add_row("Details:", error.raw_text[:200])
+
+    console.print(table)
+
+
 # ============================================================================
 # List Command
 # ============================================================================

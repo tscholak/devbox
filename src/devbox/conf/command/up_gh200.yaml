@@ -3,12 +3,18 @@
 # Launch GH200 (96 GB) instance in Washington DC with persistent home filesystem
 # Usage: devbox command=up_gh200
 
-command: up
+defaults:
+  - up
+
+# Override specific settings for GH200
 region: us-east-3  # Washington DC, USA
 instance_type: gpu_1x_gh200  # 1x GH200 (96 GB)
 ssh_key_name: default  # SSH key name in Lambda Cloud account
 filesystem_name: devbox  # Persistent filesystem for /nix and /home
 instance_name: gh200-devbox  # Name for the instance
 image_id: e57d5fc7-36e7-4f9a-953f-3429c1f7e3b7  # Lambda Stack 24.04 arm64 (us-east-3)
-quantity: 1  # Number of instances to launch
 wait_after_launch: true  # Wait for instance to be ready and show SSH command
+
+# Use more aggressive retry for GH200 (high demand)
+max_retries: 30  # Up to ~45 min of polling
+max_backoff: 120.0  # Max 2 minute wait between attempts

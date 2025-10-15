@@ -8,7 +8,7 @@
 Lambda Labs GPU instance management for hackers
 ```
 
-**Status**: WIP - Opinionated & Evolving
+**Status**: v1.0 - Opinionated & Evolving
 
 A CLI tool for managing Lambda Labs GPU instances with persistent storage, cloud-init automation, and intelligent retry logic. Built for the workflow of repeatedly spinning up powerful GPU instances, doing work, and tearing them down—without losing your environment setup.
 
@@ -24,7 +24,7 @@ A CLI tool for managing Lambda Labs GPU instances with persistent storage, cloud
 
 ```bash
 # Clone and setup
-git clone <your-repo>
+git clone https://github.com/tscholak/devbox.git
 cd devbox
 python -m venv .venv
 source .venv/bin/activate

@@ -170,32 +170,54 @@ class ListCommand(BaseCommand):
                         self.console.print("[dim]No instances found[/dim]")
                         return
 
-                    table = Table(title="Lambda Cloud Instances")
-                    table.add_column("Name", style="bold white", no_wrap=True)
-                    table.add_column("Status", style="magenta")
-                    table.add_column("IP", style="green")
-                    table.add_column("Region", style="blue")
-                    table.add_column("Type", style="yellow")
-                    table.add_column("ID", style="dim cyan", no_wrap=True)
-
+                    # Display each instance as a card
                     for inst in instances:
+                        # Determine status style
                         status_style = {
-                            InstanceStatus.active: "bold green",
-                            InstanceStatus.booting: "bold yellow",
-                            InstanceStatus.unhealthy: "bold red",
+                            InstanceStatus.active: "green",
+                            InstanceStatus.booting: "yellow",
+                            InstanceStatus.unhealthy: "red",
                             InstanceStatus.terminated: "dim",
                         }.get(inst.status, "")
 
-                        table.add_row(
-                            inst.name or "[dim](unnamed)[/dim]",
-                            f"[{status_style}]{inst.status.value}[/{status_style}]",
-                            inst.ip or "-",
-                            inst.region.name.value,
-                            inst.instance_type.name,
-                            inst.id,
+                        status_text = (
+                            f"[{status_style}]{inst.status.value}[/{status_style}]"
+                            if status_style
+                            else inst.status.value
                         )
 
-                    self.console.print(table)
+                        # Create 2-column table for this instance
+                        table = Table(
+                            show_header=False,
+                            box=None,
+                            padding=(0, 1),
+                            expand=False,
+                        )
+                        table.add_column(style="dim", justify="right", no_wrap=True)
+                        table.add_column(style="white")
+
+                        # Header with instance name
+                        self.console.print(f"\n[bold cyan]{inst.name}[/bold cyan]")
+
+                        # Details
+                        table.add_row("ID:", inst.id)
+                        table.add_row("Status:", status_text)
+                        table.add_row("IP:", inst.ip or "-")
+                        table.add_row("Region:", inst.region.name.value)
+                        table.add_row("Instance Type:", inst.instance_type.name)
+
+                        # Optional fields
+                        if inst.ssh_key_names:
+                            table.add_row("SSH Keys:", ", ".join(inst.ssh_key_names))
+                        if inst.file_system_names:
+                            table.add_row(
+                                "Filesystems:", ", ".join(inst.file_system_names)
+                            )
+
+                        self.console.print(table)
+
+                    # Summary
+                    self.console.print(f"\n[bold]{len(instances)}[/bold] instances")
 
                 case ListResource.instance_types:
                     data = await client.list_instance_types()

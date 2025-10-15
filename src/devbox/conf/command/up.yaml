@@ -9,3 +9,9 @@ instance_name: null  # Optional: Name for the instance
 image_id: null  # Optional: Image ID (e.g., from list images command)
 quantity: 1  # Number of instances to launch
 wait_after_launch: false  # Wait for instance to be ready
+
+# Launch retry configuration (for insufficient capacity errors)
+max_retries: 20  # Maximum retry attempts for insufficient capacity
+initial_backoff: 5.0  # Initial backoff in seconds before first retry
+max_backoff: 60.0  # Maximum backoff between retries
+backoff_multiplier: 1.5  # Backoff multiplier for exponential backoff

@@ -19,6 +19,7 @@ from lambdalabs import (
     Image,
     Instance,
     InstanceLaunchRequest,
+    InstanceLaunchResponse,
     InstanceTerminateRequest,
     LambdaCloudClient,
 )
@@ -734,11 +735,8 @@ class UpCommand(BaseCommand):
             api_key=self.config.api.api_key,
             base_url=self.config.api.base_url,
         ) as client:
-            # Launch instances
-            with self.console.status(
-                f"[bold green]Launching {self.config.quantity} instance(s)..."
-            ):
-                response = await client.launch_instance(request)
+            # Launch instances with retry logic for insufficient capacity
+            response = await self._launch_with_retry(client, request)
 
             if not response.instance_ids:
                 log.warning("Launch returned no instance IDs")
@@ -757,6 +755,67 @@ class UpCommand(BaseCommand):
 
                 # Display rich summary
                 self._display_launch_summary(ready_instances)
+
+    async def _launch_with_retry(
+        self, client: LambdaCloudClient, request: InstanceLaunchRequest
+    ) -> InstanceLaunchResponse:
+        """Launch instance with retry logic for insufficient capacity errors.
+
+        Args:
+            client: Lambda Cloud API client
+            request: Launch instance request
+
+        Returns:
+            Launch response with instance IDs
+
+        Raises:
+            ApiError: If launch fails with non-retryable error or max retries exceeded
+        """
+        from lambdalabs import ApiError
+        from lambdalabs.models import ApiErrorInsufficientCapacity
+
+        backoff = self.config.initial_backoff
+        attempt = 0
+
+        while True:
+            try:
+                with self.console.status(
+                    f"[bold green]Launching {self.config.quantity} instance(s)..."
+                    + (
+                        f" (attempt {attempt + 1}/{self.config.max_retries + 1})"
+                        if attempt > 0
+                        else ""
+                    )
+                ):
+                    return await client.launch_instance(request)
+
+            except ApiError as e:
+                # Use structural pattern matching to handle different error types
+                match e.error:
+                    case ApiErrorInsufficientCapacity():
+                        # Retry on insufficient capacity
+                        if attempt >= self.config.max_retries:
+                            self.console.print(
+                                f"\n[red]✗[/red] Max retries ({self.config.max_retries}) exceeded"
+                            )
+                            raise
+
+                        attempt += 1
+                        self.console.print(
+                            f"\n[yellow]⚠[/yellow] Insufficient capacity - "
+                            f"retrying in {backoff:.1f}s (attempt {attempt}/{self.config.max_retries + 1})"
+                        )
+                        await asyncio.sleep(backoff)
+
+                        # Exponential backoff
+                        backoff = min(
+                            backoff * self.config.backoff_multiplier,
+                            self.config.max_backoff,
+                        )
+
+                    case _:
+                        # Non-retryable error - fail immediately
+                        raise
 
     def _build_cloud_init_context(self) -> dict[str, str | None]:
         """Build Jinja2 context for cloud-init template rendering.
@@ -832,16 +891,9 @@ class UpCommand(BaseCommand):
         Args:
             instances: List of ready instances
         """
-        self.console.print("\n" + "=" * 60)
-        self.console.print("[bold green]Launch Complete![/bold green]\n")
+        self.console.print("\n[bold green]Launch Complete![/bold green]")
 
-        # Create table
-        table = Table(title="Launched Instances")
-        table.add_column("Instance ID", style="cyan", no_wrap=True)
-        table.add_column("IP Address", style="green")
-        table.add_column("Status", style="magenta")
-        table.add_column("SSH Command", style="white")
-
+        # Display each instance as a card
         for inst in instances:
             # Write SSH config for each instance
             try:
@@ -851,36 +903,26 @@ class UpCommand(BaseCommand):
                 log.warning(f"Failed to write SSH config for {inst.name}: {e}")
                 ssh_cmd = ssh_command(inst.ip or "", username=self.config.ssh.username)
 
-            table.add_row(
-                inst.id,
-                inst.ip or "-",
-                inst.status.value,
-                ssh_cmd,
-            )
+            print_resource_header(self.console, inst.name or inst.id)
+            table = create_details_table()
+            table.add_row("ID:", inst.id)
+            table.add_row("Status:", format_instance_status(inst.status))
+            table.add_row("IP:", inst.ip or "-")
+            table.add_row("SSH:", f"[cyan]{ssh_cmd}[/cyan]")
+            table.add_row("Region:", inst.region.name.value)
+            table.add_row("Type:", inst.instance_type.name)
 
-        self.console.print(table)
+            self.console.print(table)
 
-        # Show SSH config info
-        if instances:
-            self.console.print(
-                "\n[bold]SSH Config:[/bold] Configs written to ~/.ssh/config.d/"
-            )
-            for inst in instances:
-                self.console.print(f"  • [cyan]ssh {inst.name}[/cyan] → {inst.ip}")
-
-        # Show mount info if filesystem attached
+        # Show filesystem mount info if attached
         if self.config.filesystem_name:
             self.console.print(
-                f"\n[bold]Persistent Storage:[/bold] /lambda/nfs/{self.config.filesystem_name}"
+                f"\n[bold cyan]Persistent Storage[/bold cyan] ([dim]/lambda/nfs/{self.config.filesystem_name}[/dim])"
             )
-            self.console.print(
-                "  • [cyan]/nix[/cyan] → Nix store (loop device from nix.img)"
-            )
-            self.console.print(
-                f"  • [cyan]/home/{self.config.ssh.username}[/cyan] → User home directory"
-            )
-
-        self.console.print("\n" + "=" * 60)
+            table = create_details_table()
+            table.add_row("/nix:", "Nix store (loop device from nix.img)")
+            table.add_row(f"/home/{self.config.ssh.username}:", "User home directory")
+            self.console.print(table)
 
 
 class UpCommandConfig(BaseCommandConfig):
@@ -895,6 +937,16 @@ class UpCommandConfig(BaseCommandConfig):
     image_id: str | None = Field(description="Image ID to use")
     quantity: int = Field(description="Number of instances", ge=1)
     wait_after_launch: bool = Field(description="Wait for instance to be ready")
+    max_retries: int = Field(
+        description="Maximum retry attempts for insufficient capacity", ge=0
+    )
+    initial_backoff: float = Field(
+        description="Initial backoff in seconds before first retry", gt=0
+    )
+    max_backoff: float = Field(description="Maximum backoff between retries", gt=0)
+    backoff_multiplier: float = Field(
+        description="Backoff multiplier for exponential backoff", gt=1.0
+    )
 
     _command_class: ClassVar[type[BaseCommand]] = UpCommand
 

@@ -20,7 +20,8 @@ packages = [
 ]
 include = [
     {path = "src/devbox/conf", format = ["sdist", "wheel"]},
-    {path = "src/devbox/templates", format = ["sdist", "wheel"]}
+    {path = "src/devbox/templates", format = ["sdist", "wheel"]},
+    {path = "src/lambdalabs/data", format = ["sdist", "wheel"]}
 ]
 
 [tool.poetry.dependencies]

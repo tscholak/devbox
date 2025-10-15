@@ -244,3 +244,5 @@ This is a personal tool made public. PRs welcome but I reserve the right to be o
 ---
 
 *Built with Python 3.13, Pydantic 2.x, Hydra 1.3, Rich, and strong opinions.*
+
+*Includes Lambda Cloud API spec v1.8.3*

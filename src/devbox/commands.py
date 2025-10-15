@@ -146,6 +146,54 @@ def find_instance(instances: list[Instance], identifier: str) -> Instance | None
     return None
 
 
+def create_details_table() -> Table:
+    """Create a standardized 2-column details table.
+
+    Returns:
+        Configured Rich Table with right-aligned dim labels and white values
+    """
+    table = Table(
+        show_header=False,
+        box=None,
+        padding=(0, 1),
+        expand=False,
+    )
+    table.add_column(style="dim", justify="right", no_wrap=True)
+    table.add_column(style="white")
+    return table
+
+
+def print_resource_header(console, name: str) -> None:
+    """Print a standardized resource name header.
+
+    Args:
+        console: Rich console instance
+        name: Resource name to display
+    """
+    console.print(f"\n[bold cyan]{name}[/bold cyan]")
+
+
+def format_instance_status(status: InstanceStatus) -> str:
+    """Format instance status with appropriate styling.
+
+    Args:
+        status: Instance status enum value
+
+    Returns:
+        Formatted status string with Rich markup
+    """
+    status_style = {
+        InstanceStatus.active: "green",
+        InstanceStatus.booting: "yellow",
+        InstanceStatus.unhealthy: "red",
+        InstanceStatus.terminated: "dim",
+    }.get(status, "")
+
+    if status_style:
+        return f"[{status_style}]{status.value}[/{status_style}]"
+    return status.value
+
+
 # ============================================================================
 # List Command
 # ============================================================================
@@ -172,36 +220,11 @@ class ListCommand(BaseCommand):
 
                     # Display each instance as a card
                     for inst in instances:
-                        # Determine status style
-                        status_style = {
-                            InstanceStatus.active: "green",
-                            InstanceStatus.booting: "yellow",
-                            InstanceStatus.unhealthy: "red",
-                            InstanceStatus.terminated: "dim",
-                        }.get(inst.status, "")
+                        print_resource_header(self.console, inst.name)
 
-                        status_text = (
-                            f"[{status_style}]{inst.status.value}[/{status_style}]"
-                            if status_style
-                            else inst.status.value
-                        )
-
-                        # Create 2-column table for this instance
-                        table = Table(
-                            show_header=False,
-                            box=None,
-                            padding=(0, 1),
-                            expand=False,
-                        )
-                        table.add_column(style="dim", justify="right", no_wrap=True)
-                        table.add_column(style="white")
-
-                        # Header with instance name
-                        self.console.print(f"\n[bold cyan]{inst.name}[/bold cyan]")
-
-                        # Details
+                        table = create_details_table()
                         table.add_row("ID:", inst.id)
-                        table.add_row("Status:", status_text)
+                        table.add_row("Status:", format_instance_status(inst.status))
                         table.add_row("IP:", inst.ip or "-")
                         table.add_row("Region:", inst.region.name.value)
                         table.add_row("Instance Type:", inst.instance_type.name)
@@ -246,15 +269,7 @@ class ListCommand(BaseCommand):
                         it = item.instance_type
                         specs = it.specs
 
-                        # Create a table for this instance type
-                        table = Table(
-                            show_header=False,
-                            box=None,
-                            padding=(0, 1),
-                            expand=False,
-                        )
-                        table.add_column(style="dim", justify="right", no_wrap=True)
-                        table.add_column(style="white")
+                        table = create_details_table()
 
                         # Format price
                         price_dollars = it.price_cents_per_hour / 100
@@ -452,17 +467,8 @@ class ListCommand(BaseCommand):
                             else "[dim]Not in use[/dim]"
                         )
 
-                        # Create table for this filesystem
-                        table = Table(
-                            show_header=False,
-                            box=None,
-                            padding=(0, 1),
-                            expand=False,
-                        )
-                        table.add_column(style="dim", justify="right", no_wrap=True)
-                        table.add_column(style="white")
-
-                        self.console.print(f"\n[bold cyan]{fs.name}[/bold cyan]")
+                        print_resource_header(self.console, fs.name)
+                        table = create_details_table()
                         table.add_row("ID:", fs.id)
                         table.add_row("Region:", fs.region.name.value)
                         table.add_row("Mount Point:", fs.mount_point)
@@ -495,17 +501,8 @@ class ListCommand(BaseCommand):
 
                     # Display each SSH key
                     for ssh_key in ssh_keys:
-                        # Create table for this key
-                        table = Table(
-                            show_header=False,
-                            box=None,
-                            padding=(0, 1),
-                            expand=False,
-                        )
-                        table.add_column(style="dim", justify="right", no_wrap=True)
-                        table.add_column(style="white")
-
-                        self.console.print(f"\n[bold cyan]{ssh_key.name}[/bold cyan]")
+                        print_resource_header(self.console, ssh_key.name)
+                        table = create_details_table()
                         table.add_row("ID:", ssh_key.id)
                         table.add_row("Public Key:", ssh_key.public_key)
 
@@ -546,17 +543,8 @@ class ListCommand(BaseCommand):
                         else:
                             in_use_display = "[dim]Not in use[/dim]"
 
-                        # Create table for this ruleset
-                        table = Table(
-                            show_header=False,
-                            box=None,
-                            padding=(0, 1),
-                            expand=False,
-                        )
-                        table.add_column(style="dim", justify="right", no_wrap=True)
-                        table.add_column(style="white")
-
-                        self.console.print(f"\n[bold cyan]{ruleset.name}[/bold cyan]")
+                        print_resource_header(self.console, ruleset.name)
+                        table = create_details_table()
                         table.add_row("ID:", ruleset.id)
                         table.add_row("Region:", ruleset.region.name.value)
                         table.add_row("Status:", in_use_display)
@@ -957,9 +945,7 @@ class DownCommand(BaseCommand):
                     )
 
                 # Create details table
-                table = Table(show_header=False, box=None, padding=(0, 1), expand=False)
-                table.add_column(style="dim", justify="right", no_wrap=True)
-                table.add_column(style="white")
+                table = create_details_table()
 
                 # Basic info
                 if inst.name:

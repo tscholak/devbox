@@ -98,11 +98,17 @@ FirewallRulesetError = Annotated[
 ]
 
 # Type adapters for error contexts
-instance_launch_error_adapter = TypeAdapter(InstanceLaunchError)
-instance_operation_error_adapter = TypeAdapter(InstanceOperationError)
-filesystem_error_adapter = TypeAdapter(FilesystemError)
-firewall_ruleset_error_adapter = TypeAdapter(FirewallRulesetError)
-common_error_adapter = TypeAdapter(CommonApiError)
+instance_launch_error_adapter: TypeAdapter[InstanceLaunchError] = TypeAdapter(
+    InstanceLaunchError
+)
+instance_operation_error_adapter: TypeAdapter[InstanceOperationError] = TypeAdapter(
+    InstanceOperationError
+)
+filesystem_error_adapter: TypeAdapter[FilesystemError] = TypeAdapter(FilesystemError)
+firewall_ruleset_error_adapter: TypeAdapter[FirewallRulesetError] = TypeAdapter(
+    FirewallRulesetError
+)
+common_error_adapter: TypeAdapter[CommonApiError] = TypeAdapter(CommonApiError)
 
 # Type adapters for response data
 instance_list_adapter = TypeAdapter(list[Instance])

@@ -6,11 +6,15 @@ import asyncio
 import logging
 from pathlib import Path
 import time
-from typing import Annotated, ClassVar, Literal
+from typing import TYPE_CHECKING, Annotated, ClassVar, Literal
 
 from pydantic import Field, TypeAdapter
 from rich.panel import Panel
 from rich.table import Table
+
+
+if TYPE_CHECKING:
+    from rich.console import Console
 
 from devbox.cloud_init import load_cloud_init_template
 from devbox.command_base import BaseCommand, BaseCommandConfig, CommandError
@@ -61,6 +65,9 @@ def write_ssh_config(
     """
     if not instance.ip:
         raise ValueError(f"Instance {instance.id} has no IP address")
+
+    if not instance.name:
+        raise ValueError(f"Instance {instance.id} has no name")
 
     config_dir = Path.home() / ".ssh" / "config.d"
     config_dir.mkdir(parents=True, exist_ok=True, mode=0o700)
@@ -164,7 +171,7 @@ def create_details_table() -> Table:
     return table
 
 
-def print_resource_header(console, name: str) -> None:
+def print_resource_header(console: Console, name: str) -> None:  # type: ignore[name-defined]
     """Print a standardized resource name header.
 
     Args:
@@ -195,7 +202,7 @@ def format_instance_status(status: InstanceStatus) -> str:
     return status.value
 
 
-def render_api_error(console, error) -> None:
+def render_api_error(console: Console, error: Exception) -> None:  # type: ignore[name-defined]
     """Render an API error using the standard visual language.
 
     Args:
@@ -299,7 +306,7 @@ class ListCommand(BaseCommand):
 
                     # Display each instance as a card
                     for inst in instances:
-                        print_resource_header(self.console, inst.name)
+                        print_resource_header(self.console, inst.name or inst.id)
 
                         table = create_details_table()
                         table.add_row("ID:", inst.id)
@@ -898,9 +905,11 @@ class UpCommand(BaseCommand):
             # Write SSH config for each instance
             try:
                 write_ssh_config(inst, username=self.config.ssh.username)
-                ssh_cmd = f"ssh {inst.name}"
+                ssh_cmd = f"ssh {inst.name or inst.id}"
             except (ValueError, OSError) as e:
-                log.warning(f"Failed to write SSH config for {inst.name}: {e}")
+                log.warning(
+                    f"Failed to write SSH config for {inst.name or inst.id}: {e}"
+                )
                 ssh_cmd = ssh_command(inst.ip or "", username=self.config.ssh.username)
 
             print_resource_header(self.console, inst.name or inst.id)
@@ -1063,16 +1072,17 @@ class DownCommand(BaseCommand):
                 )
 
                 # Delete SSH config file
-                try:
-                    if delete_ssh_config(inst.name):
+                if inst.name:
+                    try:
+                        if delete_ssh_config(inst.name):
+                            self.console.print(
+                                f"  [dim]Removed SSH config for {inst.name}[/dim]"
+                            )
+                    except OSError as e:
+                        log.warning(f"Failed to delete SSH config for {inst.name}: {e}")
                         self.console.print(
-                            f"  [dim]Removed SSH config for {inst.name}[/dim]"
+                            f"  [yellow]⚠[/yellow] [dim]Could not remove SSH config for {inst.name}[/dim]"
                         )
-                except OSError as e:
-                    log.warning(f"Failed to delete SSH config for {inst.name}: {e}")
-                    self.console.print(
-                        f"  [yellow]⚠[/yellow] [dim]Could not remove SSH config for {inst.name}[/dim]"
-                    )
 
                 # Create details table
                 table = create_details_table()
@@ -1097,12 +1107,13 @@ class DownCommand(BaseCommand):
 
                 # Firewall rulesets
                 if inst.firewall_rulesets:
-                    ruleset_names = [rs.name for rs in inst.firewall_rulesets]
+                    ruleset_names = [rs.id for rs in inst.firewall_rulesets]
                     table.add_row("Firewall Rulesets:", ", ".join(ruleset_names))
 
                 # Tags
                 if inst.tags:
-                    table.add_row("Tags:", ", ".join(inst.tags))
+                    tag_strings = [f"{tag.key}={tag.value}" for tag in inst.tags]
+                    table.add_row("Tags:", ", ".join(tag_strings))
 
                 # Jupyter (if available)
                 if inst.jupyter_url:

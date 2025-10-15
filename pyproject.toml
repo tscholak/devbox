@@ -5,14 +5,32 @@ build-backend = "poetry.core.masonry.api"
 [tool.poetry]
 name = "devbox"
 version = "1.0.0"
-description = ""
+description = "Lambda Labs GPU instance management CLI with persistent storage and intelligent retry"
 readme = "README.md"
 license = "MIT"
 authors = ["Torsten Scholak <torsten.scholak@googlemail.com>"]
 maintainers = ["Torsten Scholak <torsten.scholak@googlemail.com>"]
 keywords = [
+    "lambda-labs",
+    "gpu",
+    "cloud",
+    "cli",
+    "nix",
+    "devops",
 ]
 classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: POSIX :: Linux",
+    "Operating System :: MacOS",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: System :: Systems Administration",
+    "Topic :: Utilities",
+    "Typing :: Typed",
 ]
 packages = [
     {include = "lambdalabs", from = "src"},
@@ -54,10 +72,6 @@ datamodel-code-generator = {extras = ["http"], version = ">=0.25.0"}
 
 # Pre-commit hooks
 pre-commit = ">=3.0.0"
-
-[tool.poetry.group.docs.dependencies]
-
-[tool.poetry.extras]
 
 [tool.poetry.urls]
 Homepage = "https://github.com/tscholak/devbox"

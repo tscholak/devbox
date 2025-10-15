@@ -37,7 +37,7 @@
   scripts.regenerate-models = {
     description = "Regenerate Pydantic models from Lambda Cloud OpenAPI spec";
     exec = ''
-      SPEC_FILE="$DEVENV_ROOT/Lambda Cloud API spec 1.8.3.json"
+      SPEC_FILE="$DEVENV_ROOT/src/lambdalabs/data/openapi-spec.json"
       OUTPUT_FILE="$DEVENV_ROOT/src/lambdalabs/models.py"
 
       echo "Regenerating models from OpenAPI spec..."

@@ -72,31 +72,6 @@ Capacity issues? No problem. The CLI automatically retries with exponential back
 
 But fails fast on actual errors (auth, invalid params, quota exceeded).
 
-### Type-Safe Error Handling
-
-Context-specific error unions using Pydantic discriminated unions:
-
-```python
-match error.error:
-    case ApiErrorInsufficientCapacity():
-        # Retry with backoff
-    case ApiErrorQuotaExceeded():
-        # Fail immediately
-    case _:
-        # Handle others
-```
-
-Errors are beautifully rendered with structured details:
-
-```
-API Error
-    Request:  POST /instance-operations/launch
-     Status:  400
-       Code:  instance-operations/launch/insufficient-capacity
-    Message:  Not enough capacity to fulfill launch request.
- Suggestion:  Choose an instance type with more availability, or try again later.
-```
-
 ### Cloud-Init Automation
 
 Instances automatically configure themselves on first boot:

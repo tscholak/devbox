@@ -1,4 +1,4 @@
-"""Cloud-init template handling with Jinja2 support."""
+"""Template handling with Jinja2 support."""
 
 from __future__ import annotations
 
@@ -9,21 +9,18 @@ from typing import Any
 from jinja2 import Template
 
 
-def load_cloud_init_template(
-    context: dict[str, Any], template_name: str = "cloud-init.yaml.j2"
-) -> str:
-    """Load and render cloud-init template from package resources.
+def load_template(context: dict[str, Any], template_name: str) -> str:
+    """Load and render template from package resources.
 
     The template is loaded from devbox/templates/ and rendered with the
     provided Jinja2 context variables.
 
     Args:
-        context: Dictionary of variables for Jinja2 template rendering.
-                Expected keys: filesystem_name, filesystem_mount, ssh_username
-        template_name: Name of the template file to load (default: cloud-init.yaml.j2)
+        context: Dictionary of variables for Jinja2 template rendering
+        template_name: Name of the template file to load
 
     Returns:
-        Rendered cloud-init YAML content
+        Rendered template content
 
     Raises:
         FileNotFoundError: If template file not found in package
